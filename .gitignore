@@ -1,0 +1,7 @@
+.idea/
+.DS_Store
+openrouter_key.txt
+.env*
+node_modules/
+dist/
+__pycache__/
