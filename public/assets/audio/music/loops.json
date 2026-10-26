@@ -1,0 +1,8 @@
+{
+  "sampleRate": 44100,
+  "loopSamples": {
+    "pond": 3386880,
+    "sky": 2822400,
+    "space": 3763200
+  }
+}
