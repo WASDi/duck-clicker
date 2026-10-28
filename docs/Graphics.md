@@ -35,19 +35,21 @@ Generate images with https://openrouter.ai/openai/gpt-image-2.5-sunburst.
 
 ## 3. Asset list and generation plan
 
-| Asset group             | Contents                                                                                                                                                  | Gens  |
-|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
-| Ducks (Pond, Sky)       | Grid: the 5 ducks from `reference.png` re-rendered in sitting pose (see §4)                                                                               | 1     |
-| Flying ducks            | Grid: 5 duck colors × 2 wing-flap frames                                                                                                                  | 1     |
-| Astronaut ducks (Space) | Grid: 5 duck colors in space suits with glass helmets, floating pose + 2 limb frames                                                                      | 1–2   |
-| Eggs and hatching       | Reed nest egg, cloud egg, space pod egg, each with intact, cracked, and shell-half frames                                                                 | 1     |
-| Cloud                   | One fluffy cloud, reused at different sizes, flipped, and tinted                                                                                          | 1     |
-| Level backgrounds       | Pond, Sky, Space                                                                                                                                          | 3     |
-| Level props             | One grid per level: the four growth upgrade props, the completion prop, the level's golden item base (bread slice, small cloud, star), and scenery pieces | 3     |
-| Icons                   | 12 growth upgrade icons, 3 completion icons, Quack                                                                                                        | 2     |
-| HUD kit                 | Panel frame, button states, progress bar parts, frenzy marker, "HONK!" burst                                                                              | 1–2   |
-| Outro                   | Blue moon with a glowing pond, flag, and a few extra frames                                                                                               | 1–2   |
-| **Total**               |                                                                                                                                                           | 15–18 |
+The exact contents, layout, and output names of every generation are in `Assets.md`.
+
+| Asset group             | Contents                                                                                                                                                                                     | Gens |
+|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------|
+| Ducks (Pond, Sky)       | Grid: the 5 ducks from `reference.png` re-rendered in sitting pose (see §4)                                                                                                                  | 1    |
+| Flying ducks            | Grid: 5 duck colors × 2 wing-flap frames                                                                                                                                                     | 1    |
+| Astronaut ducks (Space) | Grid: 5 duck colors in space suits with glass helmets, 2 floating frames (limbs tucked, limbs spread)                                                                                        | 1    |
+| Eggs and hatching       | Reed nest egg, cloud egg, space pod egg, each with intact, cracked, and shell-half frames                                                                                                    | 1    |
+| Cloud                   | One fluffy cloud, reused at different sizes, flipped, and tinted                                                                                                                             | 1    |
+| Level backgrounds       | Pond, Sky, Space                                                                                                                                                                             | 3    |
+| Level props             | One grid per level: the four growth upgrade props, the completion prop, the level's golden item base (bread slice, small cloud, star), and scenery pieces. Space also has a lit Beacon frame | 3    |
+| Icons                   | 12 growth upgrade icons, 3 completion icons, Quack                                                                                                                                           | 1    |
+| HUD kit                 | Panel frame, button states, progress bar parts, frenzy marker, "HONK!" burst                                                                                                                 | 1    |
+| Outro                   | Blue moon with a glowing pond, flag, lily-pad dome unlit and lit                                                                                                                             | 1    |
+| **Total**               |                                                                                                                                                                                              | 14   |
 
 The Golden Items, and the bread floating on the pond at the end of the outro, reuse the golden item bases from the
 props grids. The outro's eggs and ducklings reuse the egg and duck sprites.
