@@ -125,6 +125,29 @@ def crop_to_shared_box(cells: dict[Cell, Image.Image], offsets: dict[Cell, tuple
     return {cell: image.crop(shared) for cell, image in placed.items()}
 
 
+def frame_groups(cells: dict[Cell, Image.Image]) -> dict[str, list[Cell]]:
+    """Group cells with the cells they are frames of; the base cell comes first in each group."""
+    groups: dict[str, list[Cell]] = {}
+    for cell in sorted(cells, key=lambda cell: cell.frame_of is not None):
+        groups.setdefault(cell.frame_of or cell.name, []).append(cell)
+    return groups
+
+
+def crop_frames(cells: dict[Cell, Image.Image], frames: list[Cell]) -> dict[Cell, Image.Image]:
+    """Trim a single cell to its content, or line up a cell's frames and crop them with one shared box."""
+    base = frames[0]
+    if len(frames) == 1:
+        return {base: cells[base].crop(cells[base].getbbox())}
+    offsets = {cell: register(cells[base], cells[cell]) if cell != base else (0, 0) for cell in frames}
+    return crop_to_shared_box({cell: cells[cell] for cell in frames}, offsets)
+
+
+def target_size(grid: Grid, cell: Cell) -> tuple[int, int]:
+    """Return the cell's output size; a frame of another cell uses that cell's size."""
+    base = next((other for other in grid.cells if other and other.name == cell.frame_of), cell)
+    return base.size or grid.size
+
+
 def fit_scale(sprite: Image.Image, target: tuple[int, int]) -> float:
     return min(target[0] / sprite.width, target[1] / sprite.height)
 
@@ -155,10 +178,12 @@ def slice_sprites(grid: Grid, image: Image.Image) -> dict[str, Image.Image]:
         offsets = frame_offsets(grid, cells) if grid.frame_rows else dict.fromkeys(cells, (0, 0))
         sprites = crop_to_shared_box(cells, offsets)
     else:
-        sprites = {cell: cell_image.crop(cell_image.getbbox()) for cell, cell_image in cells.items()}
+        sprites = {}
+        for frames in frame_groups(cells).values():
+            sprites.update(crop_frames(cells, frames))
     if grid.size is None:
         return {cell.name: sprite for cell, sprite in sprites.items()}
-    return {cell.name: place(sprite, fit_scale(sprite, cell.size or grid.size), cell.size or grid.size, grid)
+    return {cell.name: place(sprite, fit_scale(sprite, target_size(grid, cell)), target_size(grid, cell), grid)
             for cell, sprite in sprites.items()}
 
 

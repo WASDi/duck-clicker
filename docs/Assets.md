@@ -145,6 +145,7 @@ which fills its cell.
 | 9    | satellite               | Small satellite with solar panels (scenery)            |
 
 Output: `assets/<level>/<name>.png`, 256 × 256 (completion props 512 × 512), anchor bottom (Space: center).
+`galactic_beacon_lit` is lined up with `galactic_beacon` and cropped with the same box, so the two frames swap in place.
 
 ### G12 — Icons
 
@@ -190,6 +191,7 @@ slicing and stored in CSS.
 | 4    | dome_on   | Same dome, lit with a warm glow                          |
 
 Output: `assets/outro/<name>.png`, moon 768 px wide, others 256 × 256, anchor bottom.
+`dome_on` is lined up with `dome_off` and cropped with the same box, so the two frames swap in place.
 
 ## 3. Drawn in CSS, not generated
 

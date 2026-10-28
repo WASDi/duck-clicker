@@ -3,7 +3,7 @@
 Keep this file in sync with docs/Assets.md.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 
 @dataclass(frozen=True)
@@ -11,6 +11,7 @@ class Cell:
     name: str  # output file stem
     prompt: str
     size: tuple[int, int] | None = None  # overrides Grid.size
+    frame_of: str | None = None  # another frame of the named cell: lined up with it, same box and size
 
 
 @dataclass(frozen=True)
@@ -46,7 +47,7 @@ DUCK_RULES = ("All ducks are the ducks from the reference image, with orange bil
               "drawn at the same size.")
 
 
-def _cells(*items: tuple[str, str] | None) -> tuple[Cell | None, ...]:
+def _cells(*items: tuple | None) -> tuple[Cell | None, ...]:
     return tuple(Cell(*item) if item else None for item in items)
 
 
@@ -61,9 +62,9 @@ def _background(grid_id: str, name: str, prompt: str) -> Grid:
                 opaque=True)
 
 
-def _props(grid_id: str, level: str, anchor: str, *items: tuple[str, str] | None) -> Grid:
+def _props(grid_id: str, level: str, anchor: str, *items: tuple | None) -> Grid:
     completion_size = (512, 512)
-    cells = tuple(Cell(cell.name, cell.prompt, completion_size if index == 4 else None) if cell else None
+    cells = tuple(replace(cell, size=completion_size) if cell and index == 4 else cell
                   for index, cell in enumerate(_cells(*items)))
     return Grid(grid_id, "1:1", 3, 3,
                 f"Game props for the {level} level. Props are about the size of a duck, except cell 5, "
@@ -137,7 +138,7 @@ GRIDS = (
            ("orbital_duckweed_garden", "small ring-shaped orbital greenhouse with duckweed"),
            ("quasar_core", "glowing spherical energy core in a metal frame"),
            ("galactic_beacon", "tall beacon tower with a dish on top, unlit"),
-           ("galactic_beacon_lit", "the same beacon tower, its dish lit up golden"),
+           ("galactic_beacon_lit", "the same beacon tower, its dish lit up golden", None, "galactic_beacon"),
            ("star", "rounded five-point star"),
            ("asteroid", "lumpy rounded asteroid"),
            ("satellite", "small satellite with solar panels")),
@@ -170,7 +171,7 @@ GRIDS = (
          (Cell("moon", "small blue moon with a glowing pond on top, seen from the side", (768, 768)),
           Cell("flag", "tiny flag on a pole with a duck footprint on it"),
           Cell("dome_off", "glass dome on a lily pad, unlit"),
-          Cell("dome_on", "the same glass dome on a lily pad, lit with a warm glow")),
+          Cell("dome_on", "the same glass dome on a lily pad, lit with a warm glow", frame_of="dome_off")),
          "assets/outro", (256, 256)),
 )
 
