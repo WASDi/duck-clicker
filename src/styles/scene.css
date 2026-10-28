@@ -1,0 +1,441 @@
+/* ---------------------------------------------------------------- Playfield */
+
+.field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1600px;
+  height: 900px;
+  transform-origin: 0 0;
+}
+
+.scene-layer,
+.fx-layer,
+.scene {
+  position: absolute;
+  inset: 0;
+}
+
+.fx-layer {
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.scene-bg {
+  position: absolute;
+  inset: 0;
+  background: center / cover no-repeat;
+}
+
+.scene-pond .scene-bg { background-image: var(--img-pond-bg); }
+.scene-sky .scene-bg { background-image: var(--img-sky-bg); }
+.scene-space .scene-bg { background-image: var(--img-space-bg); }
+
+.scenery,
+.prop,
+.prop-cloud,
+.sky-cloud {
+  position: absolute;
+  background: var(--sprite) center bottom / contain no-repeat;
+  transform-origin: 50% 100%;
+  pointer-events: none;
+}
+
+.scenery.flipped,
+.sky-cloud.flipped {
+  scale: -1 1;
+}
+
+.prop-cloud,
+.sky-cloud {
+  --sprite: var(--img-sky-cloud);
+}
+
+.scenery.far {
+  opacity: 0.8;
+  filter: brightness(1.05) saturate(0.7);
+}
+
+.drift {
+  animation: drift linear infinite;
+}
+
+.drift.reverse {
+  animation-direction: reverse;
+}
+
+@keyframes drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(1600px + 100%)); }
+}
+
+.twinkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #fff8d0;
+  transform: rotate(45deg);
+  animation: twinkle 2s steps(2) infinite;
+}
+
+@keyframes twinkle {
+  0% { transform: rotate(45deg) scale(1); }
+  100% { transform: rotate(45deg) scale(0.3); }
+}
+
+.pop {
+  animation: pop 0.35s linear;
+}
+
+@keyframes pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* ---------------------------------------------------------------- Ducks */
+
+.duck {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 256px;
+  height: 256px;
+  margin: -256px 0 0 -128px;
+  transform-origin: 50% 100%;
+  pointer-events: none;
+}
+
+.duck[data-color='white'] { --sit: var(--img-ducks-white-sit); --fly1: var(--img-ducks-white-fly-1); --fly2: var(--img-ducks-white-fly-2); --astro1: var(--img-ducks-white-astro-1); --astro2: var(--img-ducks-white-astro-2); }
+.duck[data-color='teal'] { --sit: var(--img-ducks-teal-sit); --fly1: var(--img-ducks-teal-fly-1); --fly2: var(--img-ducks-teal-fly-2); --astro1: var(--img-ducks-teal-astro-1); --astro2: var(--img-ducks-teal-astro-2); }
+.duck[data-color='tan'] { --sit: var(--img-ducks-tan-sit); --fly1: var(--img-ducks-tan-fly-1); --fly2: var(--img-ducks-tan-fly-2); --astro1: var(--img-ducks-tan-astro-1); --astro2: var(--img-ducks-tan-astro-2); }
+.duck[data-color='chestnut'] { --sit: var(--img-ducks-chestnut-sit); --fly1: var(--img-ducks-chestnut-fly-1); --fly2: var(--img-ducks-chestnut-fly-2); --astro1: var(--img-ducks-chestnut-astro-1); --astro2: var(--img-ducks-chestnut-astro-2); }
+.duck[data-color='dark_brown'] { --sit: var(--img-ducks-dark-brown-sit); --fly1: var(--img-ducks-dark-brown-fly-1); --fly2: var(--img-ducks-dark-brown-fly-2); --astro1: var(--img-ducks-dark-brown-astro-1); --astro2: var(--img-ducks-dark-brown-astro-2); }
+
+.duck-bob,
+.duck-hop,
+.duck-flip,
+.duck-img {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+}
+
+.duck-bob {
+  animation: duck-bob 2s linear infinite;
+}
+
+.duck[data-pose='fly'] .duck-bob {
+  animation-duration: 0.9s;
+}
+
+.duck[data-pose='astro'] .duck-bob {
+  transform-origin: 50% 50%;
+  animation: astro-bob 4.5s linear infinite;
+}
+
+.stage.frenzy .duck .duck-bob {
+  animation: duck-bounce 0.5s linear infinite;
+}
+
+@keyframes duck-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(7px); }
+}
+
+@keyframes astro-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-14px) rotate(-5deg); }
+  75% { transform: translateY(14px) rotate(5deg); }
+}
+
+@keyframes duck-bounce {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  15% { transform: translateY(0) scale(1.08, 0.9); }
+  50% { transform: translateY(-34px) scale(0.95, 1.06); }
+  85% { transform: translateY(0) scale(1.04, 0.95); }
+}
+
+.duck-flip.left {
+  transform: scaleX(-1);
+}
+
+.duck-img {
+  background: center bottom / contain no-repeat;
+}
+
+.duck-img[data-pose='sit'] {
+  background-image: var(--sit);
+}
+
+.duck-img[data-pose='fly'] {
+  background-image: var(--fly1);
+  animation: flap 0.3s steps(1) infinite;
+}
+
+.duck-img[data-pose='astro'] {
+  background-image: var(--astro1);
+  animation: paddle 1.6s steps(1) infinite;
+}
+
+@keyframes flap {
+  0% { background-image: var(--fly1); }
+  50% { background-image: var(--fly2); }
+}
+
+@keyframes paddle {
+  0% { background-image: var(--astro1); }
+  50% { background-image: var(--astro2); }
+}
+
+.duck-hit {
+  position: absolute;
+  inset: 14% 12% 2% 12%;
+  border-radius: 45%;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.duck.far .duck-hit {
+  inset: 0;
+}
+
+.duck-hop.hop {
+  animation: hop 0.2s linear;
+}
+
+@keyframes hop {
+  0% { transform: translateY(0) scale(1, 1); }
+  25% { transform: translateY(0) scale(1.15, 0.82); }
+  60% { transform: translateY(-34px) scale(0.9, 1.12); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+.duck-hop.pop-in {
+  animation: pop-in 0.4s linear;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0, 0); }
+  35% { transform: scale(1.25, 0.78); }
+  65% { transform: scale(0.88, 1.14) translateY(-20px); }
+  100% { transform: scale(1, 1); }
+}
+
+.duck-hop.tilt {
+  animation: tilt 0.8s linear;
+}
+
+@keyframes tilt {
+  0%, 100% { transform: rotate(0deg); }
+  25%, 60% { transform: rotate(-8deg); }
+}
+
+.duck-hop.small-hop {
+  animation: small-hop 0.35s linear;
+}
+
+@keyframes small-hop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+}
+
+/* Pond: each duck sits low behind a strip of water with a scrolling wave edge. */
+.duck-water {
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  bottom: -4%;
+  height: 27%;
+  border-radius: 0 0 50% 50% / 0 0 40% 40%;
+  background:
+    linear-gradient(transparent 0 12px, rgb(160 232 255 / 0.8) 12px 15px, transparent 15px),
+    radial-gradient(circle at 50% 0, transparent 0 13px, rgb(53 193 250 / 0.9) 14px) 0 0 / 28px 100% repeat-x;
+  animation: wave 1.4s linear infinite;
+}
+
+@keyframes wave {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 0 0, 28px 0; }
+}
+
+.duck-ripple {
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  bottom: -18%;
+  height: 40%;
+  background: var(--img-pond-ripple) center / contain no-repeat;
+  animation: ripple 2.4s steps(3) infinite;
+}
+
+@keyframes ripple {
+  0% { transform: scale(0.75); }
+  100% { transform: scale(1.15); }
+}
+
+.duck[data-pose='fly'] .duck-water,
+.duck[data-pose='fly'] .duck-ripple {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- Nest and eggs */
+
+.egg-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.egg,
+.shell {
+  position: absolute;
+  background: var(--egg-intact) center bottom / contain no-repeat;
+  transform-origin: 50% 100%;
+}
+
+.egg-reed { --egg-intact: var(--img-eggs-reed-intact); --egg-cracked: var(--img-eggs-reed-cracked); --shell-top: var(--img-eggs-reed-shell-top); --shell-bottom: var(--img-eggs-reed-shell-bottom); }
+.egg-cloud { --egg-intact: var(--img-eggs-cloud-intact); --egg-cracked: var(--img-eggs-cloud-cracked); --shell-top: var(--img-eggs-cloud-shell-top); --shell-bottom: var(--img-eggs-cloud-shell-bottom); }
+.egg-pod { --egg-intact: var(--img-eggs-pod-intact); --egg-cracked: var(--img-eggs-pod-cracked); --shell-top: var(--img-eggs-pod-shell-top); --shell-bottom: var(--img-eggs-pod-shell-bottom); }
+
+.egg.cracked {
+  background-image: var(--egg-cracked);
+}
+
+.egg.gone {
+  visibility: hidden;
+}
+
+.egg-layer.wobble .egg {
+  animation: wobble 0.24s linear infinite;
+}
+
+@keyframes wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-11deg); }
+  75% { transform: rotate(11deg); }
+}
+
+.shell {
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  animation: tumble 0.6s linear forwards;
+}
+
+.shell-top {
+  background-image: var(--shell-top);
+  --tx: -70px;
+  --ty: -40px;
+  --spin: -260deg;
+}
+
+.shell-bottom {
+  background-image: var(--shell-bottom);
+  --tx: 60px;
+  --ty: 50px;
+  --spin: 200deg;
+}
+
+@keyframes tumble {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) rotate(var(--spin)); opacity: 0; }
+}
+
+.hatch-ring {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border: 3px solid var(--teal-900);
+  border-radius: 50%;
+  background: conic-gradient(var(--gold) calc(var(--p, 0) * 360deg), var(--teal-700) 0);
+}
+
+.hatch-ring::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: var(--teal-900);
+}
+
+/* ---------------------------------------------------------------- Effects */
+
+.float-num {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--cream);
+  white-space: nowrap;
+  -webkit-text-stroke: 7px var(--teal-900);
+  paint-order: stroke fill;
+  animation: float-up 0.6s linear forwards;
+}
+
+.float-num.big {
+  font-size: 64px;
+  color: var(--gold);
+  animation-duration: 1s;
+}
+
+@keyframes float-up {
+  0% { transform: translate(-50%, -100%); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate(-50%, calc(-100% - 80px)); opacity: 0; }
+}
+
+.sparkle {
+  position: absolute;
+}
+
+.sparkle i {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  margin: -10px;
+  background: #ffd94a;
+  border: 3px solid #fff3b0;
+  transform: translate(0, 0) rotate(45deg);
+  animation: sparkle-bit 0.6s linear forwards;
+}
+
+@keyframes sparkle-bit {
+  0% { transform: translate(0, 0) rotate(45deg) scale(1); }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(45deg) scale(0.2); }
+}
+
+.golden {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 130px;
+  height: 130px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.golden-img {
+  position: absolute;
+  inset: 0;
+  background: var(--sprite) center / contain no-repeat;
+  filter: sepia(1) saturate(5) hue-rotate(-10deg) brightness(1.12);
+  animation: golden-wobble 1.2s linear infinite;
+}
+
+@keyframes golden-wobble {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+}
+
+.travellers {
+  position: absolute;
+  inset: 0;
+  z-index: 3000;
+}

@@ -1,0 +1,532 @@
+/* Panels use the 9-slice frame from the HUD kit. */
+.panel {
+  border: 16px solid transparent;
+  border-image: var(--img-hud-panel) 40 fill / 16px stretch;
+}
+
+.quack-icon {
+  display: inline-block;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  background: var(--img-icons-quack) center / contain no-repeat;
+}
+
+/* ---------------------------------------------------------------- Stats bar */
+
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 0 6px;
+}
+
+.stat-label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 26px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.stat-quacks b {
+  min-width: 4.5ch;
+}
+
+.stat-rate b {
+  min-width: 4ch;
+}
+
+.frenzy-marker {
+  width: 30px;
+  height: 30px;
+  background: var(--img-hud-frenzy-marker) center / contain no-repeat;
+}
+
+.stat-finale {
+  flex: 1;
+  min-width: 180px;
+}
+
+.finale-icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  background: var(--icon) center / contain no-repeat;
+}
+
+/* Progress bars: 3-slice track and fill. */
+.bar {
+  position: relative;
+  flex: 1;
+  height: 32px;
+  border-style: solid;
+  border-width: 0 16px;
+  border-image: var(--img-hud-bar-track) 0 33 fill / 0 16px stretch;
+}
+
+.bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -16px;
+  max-width: calc(100% + 32px);
+  min-width: 32px;
+  border-style: solid;
+  border-width: 0 16px;
+  border-image: var(--img-hud-bar-fill) 0 33 fill / 0 16px stretch;
+}
+
+.bar-fill.empty {
+  display: none;
+}
+
+.bar-text {
+  position: absolute;
+  inset: 0 -10px;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--cream);
+  -webkit-text-stroke: 4px var(--teal-900);
+  paint-order: stroke fill;
+}
+
+/* ---------------------------------------------------------------- Frenzy */
+
+.frenzy-meter {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(520px, calc(100% - 20px));
+  transform: translateX(-50%);
+  border-width: 10px;
+  border-image-width: 12px;
+  pointer-events: none;
+}
+
+.frenzy-badge {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  background: var(--img-hud-frenzy-marker) center / contain no-repeat;
+}
+
+.frenzy-track {
+  position: relative;
+  flex: none;
+  width: 150px;
+  height: 18px;
+  border: 3px solid var(--gold-dark);
+  border-radius: 9px;
+  background: var(--teal-900);
+  overflow: hidden;
+}
+
+.frenzy-pips {
+  position: absolute;
+  inset: 2px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+}
+
+.frenzy-pips i {
+  border-radius: 3px;
+  background: var(--teal-700);
+}
+
+.frenzy-pips i.on {
+  background: var(--gold);
+}
+
+.frenzy-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--gold);
+  box-shadow: inset 0 3px 0 #ffe9a3;
+}
+
+.frenzy-meter[data-phase='ready'] .frenzy-fill,
+.frenzy-meter:not([data-phase='ready']) .frenzy-pips {
+  display: none;
+}
+
+.frenzy-meter[data-phase='cooldown'] .frenzy-fill {
+  background: var(--teal-500);
+  box-shadow: inset 0 3px 0 #8ef0ee;
+}
+
+.frenzy-label {
+  font-size: 16px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.frenzy-meter[data-phase='active'] .frenzy-label {
+  color: var(--gold);
+}
+
+.honk-burst {
+  position: absolute;
+  left: 50%;
+  top: 4%;
+  z-index: 20;
+  width: 300px;
+  height: 225px;
+  margin-left: -150px;
+  background: var(--img-hud-honk-burst) center / contain no-repeat;
+  pointer-events: none;
+}
+
+.honk-burst.show {
+  animation: honk-pop 1.6s linear forwards;
+}
+
+@keyframes honk-pop {
+  0% { transform: scale(0); }
+  10% { transform: scale(1.15); }
+  16% { transform: scale(1); }
+  40% { transform: scale(1) rotate(-4deg); }
+  60% { transform: scale(1) rotate(4deg); }
+  85% { transform: scale(1); visibility: visible; }
+  100% { transform: scale(1); visibility: hidden; }
+}
+
+.frenzy-border {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: none;
+  border: 6px solid var(--gold);
+  border-radius: 14px;
+  pointer-events: none;
+}
+
+.stage.frenzy .frenzy-border {
+  display: block;
+  animation: blink 0.4s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% { visibility: hidden; }
+}
+
+/* ---------------------------------------------------------------- Shop */
+
+.shop {
+  display: flex;
+  flex-direction: column;
+}
+
+.shop-title {
+  margin: 0 0 8px 4px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  padding: 4px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 3px solid var(--gold-dark);
+  border-radius: 14px;
+  background: var(--teal-700);
+  box-shadow: inset 0 3px 0 #2b7f93;
+  cursor: pointer;
+  transform-origin: 50% 50%;
+}
+
+.card[data-state='expensive'] {
+  filter: saturate(0.35) brightness(0.72);
+}
+
+.card[data-state='maxed'] {
+  border-color: var(--gold);
+  cursor: default;
+}
+
+.card.squash {
+  animation: squash 0.22s linear;
+}
+
+@keyframes squash {
+  0% { transform: scale(1, 1); }
+  35% { transform: scale(1.05, 0.88); }
+  70% { transform: scale(0.98, 1.04); }
+  100% { transform: scale(1, 1); }
+}
+
+.card-icon {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  background: var(--img-hud-button) center / contain no-repeat;
+}
+
+.card-icon::after {
+  content: '';
+  position: absolute;
+  inset: 11px;
+  background: var(--icon) center / contain no-repeat;
+}
+
+.card[data-state='expensive'] .card-icon {
+  background-image: var(--img-hud-button-off);
+}
+
+.card.pressed .card-icon {
+  animation: press 0.15s steps(1);
+}
+
+@keyframes press {
+  0% { background-image: var(--img-hud-button-down); }
+  100% { background-image: var(--img-hud-button); }
+}
+
+.card-body {
+  min-width: 0;
+}
+
+.card-name {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.card-effect {
+  font-size: 13px;
+  color: #bfe7ea;
+}
+
+.pips {
+  display: flex;
+  gap: 3px;
+  margin-top: 5px;
+}
+
+.pips i {
+  width: 13px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--teal-900);
+}
+
+.pips i.on {
+  background: var(--gold);
+}
+
+.card-cost {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  padding: 0 4px;
+  font-size: 18px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.card[data-state='maxed'] .card-cost {
+  color: var(--gold);
+}
+
+.max-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--gold);
+  position: relative;
+}
+
+.max-check::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 3px;
+  width: 6px;
+  height: 12px;
+  border: solid var(--teal-900);
+  border-width: 0 4px 4px 0;
+  transform: rotate(45deg);
+}
+
+/* The completion upgrade: a larger gold-framed card. */
+.card.completion {
+  grid-template-columns: 84px 1fr;
+  margin-top: 6px;
+  padding: 6px;
+  border: 22px solid transparent;
+  border-radius: 0;
+  border-image: var(--img-hud-card-gold) 56 fill / 22px stretch;
+  box-shadow: none;
+  background: none;
+}
+
+.card.completion .card-icon {
+  width: 84px;
+  height: 84px;
+}
+
+.card.completion .card-name {
+  font-size: 22px;
+  color: var(--gold);
+}
+
+.card.completion .pips {
+  display: none;
+}
+
+.card.completion .card-cost {
+  grid-column: 1 / -1;
+  justify-content: center;
+  min-height: 36px;
+  font-size: 22px;
+}
+
+.card.completion[data-state='affordable'] {
+  animation: wiggle 0.5s linear infinite;
+}
+
+.card.completion[data-state='affordable'].squash {
+  animation: squash 0.22s linear;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-1.5deg); }
+  75% { transform: rotate(1.5deg); }
+}
+
+/* ---------------------------------------------------------------- Mobile */
+
+@media (max-width: 760px), (orientation: portrait) and (max-width: 1000px) {
+  .panel {
+    border-width: 10px;
+    border-image-width: 12px;
+  }
+
+  .stats {
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    padding: 0 2px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .stat-row {
+    font-size: 18px;
+  }
+
+  .stat-level {
+    display: none;
+  }
+
+  .stat-finale {
+    flex-basis: 100%;
+  }
+
+  .bar {
+    height: 26px;
+  }
+
+  .frenzy-meter {
+    bottom: 6px;
+    gap: 6px;
+  }
+
+  .frenzy-badge {
+    width: 30px;
+    height: 30px;
+  }
+
+  .frenzy-track {
+    width: 96px;
+  }
+
+  .frenzy-label {
+    font-size: 12px;
+  }
+
+  .honk-burst {
+    width: 200px;
+    height: 150px;
+    margin-left: -100px;
+  }
+
+  .shop-title {
+    display: none;
+  }
+
+  .card {
+    grid-template-columns: 52px 1fr auto;
+    padding: 4px 8px;
+  }
+
+  .card-icon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .card:not(.completion):not(.open) .card-name,
+  .card:not(.completion):not(.open) .card-effect {
+    display: none;
+  }
+
+  .card:not(.completion) .card-cost {
+    min-width: 96px;
+    justify-content: center;
+    border: 2px solid var(--gold-dark);
+    border-radius: 10px;
+    background: var(--teal-800);
+  }
+
+  .card.completion {
+    grid-template-columns: 60px 1fr auto;
+    border-width: 16px;
+    border-image-width: 16px;
+  }
+
+  .card.completion .card-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .card.completion .card-name {
+    font-size: 18px;
+  }
+
+  .card.completion .card-cost {
+    grid-column: auto;
+  }
+}
