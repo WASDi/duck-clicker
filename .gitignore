@@ -5,3 +5,4 @@ openrouter_key.txt
 node_modules/
 dist/
 __pycache__/
+.venv/
