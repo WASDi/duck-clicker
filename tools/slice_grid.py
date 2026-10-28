@@ -1,7 +1,9 @@
 """Slice raw generations from tools/raw/ into game sprites (see docs/Assets.md).
 
 Cell borders are placed in the emptiest column or row near each expected border, so the grid does not need to be
-pixel-exact. Each sprite is trimmed, scaled, and padded to its target size at the grid's anchor.
+pixel-exact. Animation frames (frame_rows grids) are lined up by the overlap of their silhouettes. Each sprite is
+trimmed (to one box shared by the whole grid for shared_frame grids), scaled, and padded to its target size at the
+grid's anchor.
 
     .venv/bin/python tools/slice_grid.py G01 G02
     .venv/bin/python tools/slice_grid.py --all
@@ -21,6 +23,8 @@ RAW = ROOT / "tools" / "raw"
 ALPHA_THRESHOLD = 16  # alpha values at or below this count as empty and are cleared (removes faint glow)
 ALPHA_SOLID = 250  # alpha values at or above this are made fully opaque (the model tops out just below 255)
 BORDER_SEARCH = 0.25  # how far from the expected border to search, as a fraction of the cell size
+REGISTER_REACH = 0.2  # how far frames may be shifted to line up, as a fraction of the cell size
+REGISTER_STEP = 4  # downsampling factor for the coarse frame alignment search
 
 Box = tuple[int, int, int, int]  # left, top, right, bottom
 
@@ -45,17 +49,79 @@ def cell_boxes(mask: np.ndarray, grid: Grid) -> list[Box]:
     return [(xs[col], ys[row], xs[col + 1], ys[row + 1]) for row in range(grid.rows) for col in range(grid.cols)]
 
 
-def trim(image: Image.Image, mask: np.ndarray, box: Box, name: str) -> Image.Image | None:
-    left, top, right, bottom = box
-    cell_mask = mask[top:bottom, left:right]
-    columns = np.flatnonzero(cell_mask.any(axis=0))
-    rows = np.flatnonzero(cell_mask.any(axis=1))
-    if not len(columns):
-        print(f"  warning: {name} is empty", file=sys.stderr)
-        return None
-    if columns[0] == 0 or rows[0] == 0 or columns[-1] == cell_mask.shape[1] - 1 or rows[-1] == cell_mask.shape[0] - 1:
-        print(f"  warning: {name} touches its cell edge and may be cut off", file=sys.stderr)
-    return image.crop((left + columns[0], top + rows[0], left + columns[-1] + 1, top + rows[-1] + 1))
+def cut_cells(image: Image.Image, grid: Grid) -> dict[Cell, Image.Image]:
+    """Return each non-empty cell's full cell image, warning about empty cells and cut-off content."""
+    mask = np.asarray(image)[..., 3] > 0
+    cells: dict[Cell, Image.Image] = {}
+    for cell, box in zip(grid.cells, cell_boxes(mask, grid)):
+        if cell is None:
+            continue
+        cell_image = image.crop(box)
+        content = cell_image.getbbox()
+        if content is None:
+            print(f"  warning: {cell.name} is empty", file=sys.stderr)
+            continue
+        if content[0] == 0 or content[1] == 0 or content[2] == cell_image.width or content[3] == cell_image.height:
+            print(f"  warning: {cell.name} touches its cell edge and may be cut off", file=sys.stderr)
+        cells[cell] = cell_image
+    return cells
+
+
+def silhouette(cell_image: Image.Image, shape: tuple[int, int], margin: int) -> np.ndarray:
+    """Return the cell's opaque pixels on an empty array of `shape`, offset by `margin` on each side."""
+    alpha = np.asarray(cell_image)[..., 3] > 0
+    padded = np.zeros(shape, dtype=bool)
+    padded[margin:margin + alpha.shape[0], margin:margin + alpha.shape[1]] = alpha
+    return padded
+
+
+def overlap(reference: np.ndarray, moving: np.ndarray, dx: int, dy: int) -> float:
+    shifted = np.roll(moving, (dy, dx), axis=(0, 1))
+    return (reference & shifted).sum() / max(1, (reference | shifted).sum())
+
+
+def best_offset(reference: np.ndarray, moving: np.ndarray, center: tuple[int, int], reach: int) -> tuple[int, int]:
+    steps = range(-reach, reach + 1)
+    candidates = [(center[0] + dx, center[1] + dy) for dx in steps for dy in steps]
+    return max(candidates, key=lambda offset: overlap(reference, moving, *offset))
+
+
+def register(reference: Image.Image, moving: Image.Image) -> tuple[int, int]:
+    """Return the (dx, dy) shift that best lines up `moving`'s silhouette with `reference`'s."""
+    margin = round(max(reference.width, reference.height) * REGISTER_REACH)
+    shape = (max(reference.height, moving.height) + 2 * margin, max(reference.width, moving.width) + 2 * margin)
+    reference_mask, moving_mask = silhouette(reference, shape, margin), silhouette(moving, shape, margin)
+    step = REGISTER_STEP
+    coarse = best_offset(reference_mask[::step, ::step], moving_mask[::step, ::step], (0, 0), margin // step)
+    return best_offset(reference_mask, moving_mask, (coarse[0] * step, coarse[1] * step), step)
+
+
+def frame_offsets(grid: Grid, cells: dict[Cell, Image.Image]) -> dict[Cell, tuple[int, int]]:
+    """Line up each row's frame with the first row's frame of the same column."""
+    offsets = dict.fromkeys(cells, (0, 0))
+    for col in range(grid.cols):
+        column = [grid.cells[row * grid.cols + col] for row in range(grid.rows)]
+        reference = column[0]
+        for cell in column[1:]:
+            if reference in cells and cell in cells:
+                offsets[cell] = register(cells[reference], cells[cell])
+    return offsets
+
+
+def crop_to_shared_box(cells: dict[Cell, Image.Image], offsets: dict[Cell, tuple[int, int]]) -> dict[Cell, Image.Image]:
+    """Shift every cell by its offset onto one canvas size, then crop all of them with one shared box."""
+    margin = max(max(abs(dx), abs(dy)) for dx, dy in offsets.values())
+    size = (max(image.width for image in cells.values()) + 2 * margin,
+            max(image.height for image in cells.values()) + 2 * margin)
+    placed = {}
+    for cell, image in cells.items():
+        canvas = Image.new("RGBA", size)
+        canvas.paste(image, (margin + offsets[cell][0], margin + offsets[cell][1]))
+        placed[cell] = canvas
+    boxes = [image.getbbox() for image in placed.values()]
+    shared = (min(box[0] for box in boxes), min(box[1] for box in boxes),
+              max(box[2] for box in boxes), max(box[3] for box in boxes))
+    return {cell: image.crop(shared) for cell, image in placed.items()}
 
 
 def fit_scale(sprite: Image.Image, target: tuple[int, int]) -> float:
@@ -83,21 +149,16 @@ def clean_alpha(image: Image.Image) -> Image.Image:
 
 
 def slice_sprites(grid: Grid, image: Image.Image) -> dict[str, Image.Image]:
-    image = clean_alpha(image)
-    mask = np.asarray(image)[..., 3] > 0
-    sprites: dict[Cell, Image.Image] = {}
-    for cell, box in zip(grid.cells, cell_boxes(mask, grid)):
-        sprite = trim(image, mask, box, cell.name) if cell else None
-        if sprite:
-            sprites[cell] = sprite
+    cells = cut_cells(clean_alpha(image), grid)
+    if grid.shared_frame:
+        offsets = frame_offsets(grid, cells) if grid.frame_rows else dict.fromkeys(cells, (0, 0))
+        sprites = crop_to_shared_box(cells, offsets)
+    else:
+        sprites = {cell: cell_image.crop(cell_image.getbbox()) for cell, cell_image in cells.items()}
     if grid.size is None:
         return {cell.name: sprite for cell, sprite in sprites.items()}
-
-    scales = {cell: fit_scale(sprite, cell.size or grid.size) for cell, sprite in sprites.items()}
-    if grid.uniform_scale:
-        smallest = min(scales.values())
-        scales = dict.fromkeys(scales, smallest)
-    return {cell.name: place(sprite, scales[cell], cell.size or grid.size, grid) for cell, sprite in sprites.items()}
+    return {cell.name: place(sprite, fit_scale(sprite, cell.size or grid.size), cell.size or grid.size, grid)
+            for cell, sprite in sprites.items()}
 
 
 def cover(image: Image.Image, size: tuple[int, int]) -> Image.Image:

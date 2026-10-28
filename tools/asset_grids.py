@@ -25,7 +25,8 @@ class Grid:
     size: tuple[int, int] | None  # None = keep the sliced size
     anchor: str = "bottom"  # "bottom" or "center"
     padded: bool = True  # pad to `size` at the anchor, or only scale to fit inside it
-    uniform_scale: bool = False  # scale all cells by the same factor (keeps relative sizes)
+    shared_frame: bool = False  # crop every cell with one shared box, so sizes and positions match
+    frame_rows: bool = False  # each column is one subject and each row one of its animation frames
     opaque: bool = False  # level background: no grid, cropped to fill `size`
 
     @property
@@ -74,16 +75,16 @@ GRIDS = (
     Grid("G01", "3:2", 2, 3,
          f"The five ducks from the reference image, re-rendered sitting in the same pose. {DUCK_RULES}",
          tuple(Cell(f"{color}_sit", f"{label}, sitting") for color, label in DUCKS) + (None,),
-         "assets/ducks", (256, 256), uniform_scale=True),
+         "assets/ducks", (256, 256), shared_frame=True),
     Grid("G02", "21:9", 2, 5,
          f"Flying ducks seen from the side, two wing-flap frames per duck. {DUCK_RULES}",
          _duck_frames("fly", ("wings up", "wings down"), "flying"),
-         "assets/ducks", (256, 256), "center", uniform_scale=True),
+         "assets/ducks", (256, 256), "center", shared_frame=True, frame_rows=True),
     Grid("G03", "21:9", 2, 5,
          f"Astronaut ducks floating in space: white space suit, round glass helmet with the bill clearly visible "
          f"through it, and a small chest patch in the duck's color. Two frames per duck. {DUCK_RULES}",
          _duck_frames("astro", ("wings and feet tucked in", "wings and feet spread out"), "astronaut"),
-         "assets/ducks", (256, 256), "center", uniform_scale=True),
+         "assets/ducks", (256, 256), "center", shared_frame=True, frame_rows=True),
     Grid("G04", "4:3", 3, 4,
          "Eggs and hatching frames. Each row is one egg; the columns are: whole egg upright, the same egg with a "
          "zigzag crack around the middle, the top half of the shell alone with a jagged lower edge, the bottom "
@@ -96,7 +97,7 @@ GRIDS = (
                                            ("cracked", "with a zigzag crack around the middle"),
                                            ("shell_top", "top half of the shell only"),
                                            ("shell_bottom", "bottom half of the shell only"))),
-         "assets/eggs", (128, 128), uniform_scale=True),
+         "assets/eggs", (128, 128), shared_frame=True),
     Grid("G05", "3:2", 1, 1,
          "One fluffy white cloud exactly like the foreground clouds in the reference image, with a fairly flat "
          "bottom a duck can sit on.",
