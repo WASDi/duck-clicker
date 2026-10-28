@@ -25,6 +25,7 @@ ALPHA_SOLID = 250  # alpha values at or above this are made fully opaque (the mo
 BORDER_SEARCH = 0.25  # how far from the expected border to search, as a fraction of the cell size
 REGISTER_REACH = 0.2  # how far frames may be shifted to line up, as a fraction of the cell size
 REGISTER_STEP = 4  # downsampling factor for the coarse frame alignment search
+JPEG_QUALITY = 85  # level backgrounds are opaque, so they are stored as JPEG
 
 Box = tuple[int, int, int, int]  # left, top, right, bottom
 
@@ -162,12 +163,15 @@ def slice_sprites(grid: Grid, image: Image.Image) -> dict[str, Image.Image]:
 
 
 def cover(image: Image.Image, size: tuple[int, int]) -> Image.Image:
-    """Scale to fill `size` and crop the overflow equally from both sides."""
-    scale = max(size[0] / image.width, size[1] / image.height)
-    scaled = image.convert("RGB").resize((round(image.width * scale), round(image.height * scale)),
-                                         Image.Resampling.LANCZOS)
-    left, top = (scaled.width - size[0]) // 2, (scaled.height - size[1]) // 2
-    return scaled.crop((left, top, left + size[0], top + size[1]))
+    """Crop to the aspect ratio of `size` equally from both sides, and scale down (never up) to at most `size`."""
+    image = image.convert("RGB")
+    width = min(image.width, round(image.height * size[0] / size[1]))
+    height = min(image.height, round(image.width * size[1] / size[0]))
+    left, top = (image.width - width) // 2, (image.height - height) // 2
+    cropped = image.crop((left, top, left + width, top + height))
+    if cropped.width <= size[0]:
+        return cropped
+    return cropped.resize(size, Image.Resampling.LANCZOS)
 
 
 def process(grid: Grid, raw_dir: Path, out_root: Path) -> None:
@@ -184,8 +188,12 @@ def process(grid: Grid, raw_dir: Path, out_root: Path) -> None:
     out_dir = out_root / grid.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     for name, sprite in sprites.items():
-        path = out_dir / f"{name}.png"
-        sprite.save(path, optimize=True)
+        if grid.opaque:
+            path = out_dir / f"{name}.jpg"
+            sprite.save(path, quality=JPEG_QUALITY, optimize=True, progressive=True)
+        else:
+            path = out_dir / f"{name}.png"
+            sprite.save(path, optimize=True)
         print(f"  {path.relative_to(out_root)} {sprite.width}x{sprite.height}")
 
 

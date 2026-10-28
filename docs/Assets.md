@@ -94,7 +94,8 @@ calm (UI sits over it).
 | G07 | sky   | Saturated blue sky like the reference, plus cirrus streaks, distant cumulus, storm clouds at one edge, and a sun glow |
 | G08 | space | Deep starfield, a soft rounded planet, and a colorful nebula, not photorealistic               |
 
-Output: `assets/<name>/bg.png`, 1920 × 1080.
+Output: `assets/<name>/bg.jpg` (JPEG), cropped to 16:9 at the generated resolution and never scaled up (at most
+1920 × 1080). The browser scales it to the screen.
 
 ### G09–G11 — Level props
 

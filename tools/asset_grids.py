@@ -27,7 +27,7 @@ class Grid:
     padded: bool = True  # pad to `size` at the anchor, or only scale to fit inside it
     shared_frame: bool = False  # crop every cell with one shared box, so sizes and positions match
     frame_rows: bool = False  # each column is one subject and each row one of its animation frames
-    opaque: bool = False  # level background: no grid, cropped to fill `size`
+    opaque: bool = False  # level background: no grid, cropped to the aspect of `size`, at most `size`, saved as JPEG
 
     @property
     def background(self) -> str:

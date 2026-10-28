@@ -29,9 +29,9 @@ Generate images with https://openrouter.ai/openai/gpt-image-2.5-sunburst.
   between cells. Small assets don't need high resolution (about 256 px per duck cell, 128 px per icon cell).
 - Most assets need transparent backgrounds. Only the per-level backgrounds are opaque.
   `gpt-image-2.5-sunburst` supports transparency.
-- Backgrounds are landscape (16:9, about 1920×1080) for desktop. Keep important content in the center so mobile
-  portrait can crop to the middle, and keep the lower area calm enough for UI to sit over it.
-- Name outputs consistently, e.g. `assets/pond/bg.png`, `assets/ducks/white_sit.png`, `assets/icons/pond_1.png`.
+- Backgrounds are landscape (16:9, up to 1920×1080, stored as JPEG) for desktop. Keep important content in the center
+  so mobile portrait can crop to the middle, and keep the lower area calm enough for UI to sit over it.
+- Name outputs consistently, e.g. `assets/pond/bg.jpg`, `assets/ducks/white_sit.png`, `assets/icons/pond_1.png`.
 
 ## 3. Asset list and generation plan
 
