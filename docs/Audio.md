@@ -49,7 +49,9 @@ The outro plays once. Its scenes and times are defined in `Gameplay.md` §6; the
 
 ## 3. Sound effects
 
-All effects are short, mono or stereo, and normalized to a consistent level.
+All effects are short and mono. The generated effects are 44.1 kHz and matched to the quacks' loudness (RMS of the
+loudest 100 ms), with peaks capped at −1 dBFS. Very short, spiky effects (hatch, UI click) hit that cap first and end
+up a little quieter.
 
 | Sound                 | When it plays                                        | Source                                                                           |
 |-----------------------|------------------------------------------------------|----------------------------------------------------------------------------------|
@@ -73,6 +75,8 @@ Passive income makes no sound.
 
 - **Quack:** pick randomly from the 3 clips and never play the same clip twice in a row. Vary playback speed randomly
   by ±4%. Clicks may overlap, up to 8 sounds at once.
+- **Purchase:** `purchase.wav` is rendered at the pitch of purchase 1. For purchase count *n* (1 to 9), play it with
+  `playbackRate = 2^((n − 1) / 12)`.
 - **Hatch:** all eggs from the hatchery hatch together, with the visual staggered over about 0.5 s (see
   `Graphics.md`). Play the hatch sound once per egg, but no more than once every 0.1 s and at most 4 times per batch.
   Play it quieter than the quack.
