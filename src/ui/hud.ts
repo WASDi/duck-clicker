@@ -1,11 +1,31 @@
 import { FRENZY } from '../sim/data';
+import type { FrenzyPhase } from '../sim/frenzy';
 import type { Game } from '../sim/game';
 import { el } from '../view/playfield';
 import { formatQuacks, formatRate } from './format';
 
-/** Sets text only when it changed, to keep per-frame DOM writes cheap. */
+const shownText = new WeakMap<HTMLElement, string>();
+const shownStyles = new WeakMap<HTMLElement, Map<string, string>>();
+
+/** Sets text only when it changed, comparing in JS so per-frame updates never read the DOM. */
 function setText(element: HTMLElement, text: string): void {
-  if (element.textContent !== text) element.textContent = text;
+  if (shownText.get(element) === text) return;
+  shownText.set(element, text);
+  element.textContent = text;
+}
+
+/** Sets a style property (or custom property) only when it changed. */
+function setStyle(element: HTMLElement, property: string, value: string): void {
+  let styles = shownStyles.get(element);
+  if (!styles) shownStyles.set(element, (styles = new Map()));
+  if (styles.get(property) === value) return;
+  styles.set(property, value);
+  element.style.setProperty(property, value);
+}
+
+/** Rounds a 0..1 fraction so bar widths are rewritten only on visible changes. */
+function quantize(fraction: number): number {
+  return Math.round(fraction * 1000) / 1000;
 }
 
 function stat(parent: HTMLElement, className: string, label: string): HTMLElement {
@@ -51,11 +71,11 @@ export class StatsBar {
     this.frenzyMarker.classList.toggle('hidden', game.frenzy.phase !== 'active');
     setText(this.ducks, formatQuacks(game.ducks));
     const cost = game.completionCost;
-    const fraction = Math.min(game.quacks / cost, 1);
-    this.fill.style.width = `calc(${fraction} * (100% + 32px))`;
+    const fraction = quantize(Math.min(game.quacks / cost, 1));
+    setStyle(this.fill, 'width', `calc(${fraction} * (100% + 32px))`);
     this.fill.classList.toggle('empty', fraction <= 0);
     setText(this.progressText, `${formatQuacks(Math.min(game.quacks, cost))} / ${formatQuacks(cost)}`);
-    this.finaleIcon.style.setProperty('--icon', `var(--img-icons-${game.level.id}-done)`);
+    setStyle(this.finaleIcon, '--icon', `var(--img-icons-${game.level.id}-done)`);
   }
 }
 
@@ -65,6 +85,8 @@ export class FrenzyMeter {
   private readonly pips: HTMLElement[];
   private readonly fill: HTMLElement;
   private readonly label: HTMLElement;
+  private shownPhase: FrenzyPhase | null = null;
+  private shownStreak = -1;
 
   constructor(parent: HTMLElement) {
     this.root = el('div', 'frenzy-meter panel', parent);
@@ -77,16 +99,26 @@ export class FrenzyMeter {
   }
 
   update(game: Game): void {
-    const { phase, remaining, streak } = game.frenzy;
-    this.root.dataset.phase = phase;
+    const { phase, remaining } = game.frenzy;
+    if (phase !== this.shownPhase) {
+      this.shownPhase = phase;
+      this.root.dataset.phase = phase;
+    }
     if (phase === 'ready') {
-      this.pips.forEach((pip, i) => pip.classList.toggle('on', i < streak));
+      this.updatePips(game.frenzy.streak);
       setText(this.label, 'Honk Frenzy: 8 quick clicks!');
       return;
     }
+    this.shownStreak = -1;
     const total = phase === 'active' ? FRENZY.durationSeconds : FRENZY.cooldownSeconds;
-    const fraction = phase === 'active' ? remaining / total : 1 - remaining / total;
-    this.fill.style.width = `${fraction * 100}%`;
+    const fraction = quantize(phase === 'active' ? remaining / total : 1 - remaining / total);
+    setStyle(this.fill, 'width', `${fraction * 100}%`);
     setText(this.label, phase === 'active' ? `HONK FRENZY! ×2 · ${Math.ceil(remaining)}s` : `Recharging · ${Math.ceil(remaining)}s`);
+  }
+
+  private updatePips(streak: number): void {
+    if (streak === this.shownStreak) return;
+    this.shownStreak = streak;
+    this.pips.forEach((pip, i) => pip.classList.toggle('on', i < streak));
   }
 }

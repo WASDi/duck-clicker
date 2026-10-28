@@ -10,8 +10,8 @@ The core loop is:
 Click ducks → earn Quacks → buy upgrades → hatch more ducks → increase passive income → buy the level's final
 upgrade → complete the level.
 
-At one click per second, a typical player finishes Pond in about 3 minutes, Sky in about 4, and Space in about 5
-(about 12 minutes in total). A perfect buying order is about 25% faster. Honk Frenzy and Golden Items make it faster
+At one click per second, a typical player finishes Pond in about 1.5 minutes, Sky in about 2, and Space in about
+2.5 (about 6 minutes in total). A perfect buying order is about 25% faster. Honk Frenzy and Golden Items make it faster
 still for active players.
 
 ### Core rules
@@ -60,7 +60,7 @@ A lone duck lives beside a pond. It needs bread, friends, and a reliable feeding
 world's first Duck Republic.
 
 The player begins with one duck and zero Quacks and clicks the duck to earn Quacks. The first upgrade can be bought
-after about 10 seconds of clicking.
+after about 5 seconds of clicking.
 
 The ducks occasionally move around the pond.
 
@@ -68,11 +68,11 @@ The ducks occasionally move around the pond.
 
 | Upgrade        | Type       | Base cost | Effect per purchase                    | Max buys |
 |----------------|------------|-----------|----------------------------------------|----------|
-| Bread Conveyor | Per-duck   | 10        | +0.25 Quacks/s per duck                | 10       |
-| Reed Nursery   | Hatchery   | 35        | Hatches one duck every 14 seconds      | 10       |
-| Duckweed Farm  | Per-duck   | 100       | +0.4 Quacks/s per duck                 | 10       |
-| Worm Shower    | Flat       | 25        | +2 Quacks/s                            | 10       |
-| Flight         | Completion | 3,800     | Sends the flock flying up into the sky | 1        |
+| Bread Conveyor | Per-duck   | 5         | +0.25 Quacks/s per duck                | 10       |
+| Reed Nursery   | Hatchery   | 18        | Hatches one duck every 7 seconds       | 10       |
+| Duckweed Farm  | Per-duck   | 50        | +0.4 Quacks/s per duck                 | 10       |
+| Worm Shower    | Flat       | 13        | +2 Quacks/s                            | 10       |
+| Flight         | Completion | 1,900     | Sends the flock flying up into the sky | 1        |
 
 Buying Flight launches the flock upward into the sky and immediately starts the Sky level. The pond celebrates the
 successful bread operation.
@@ -88,13 +88,13 @@ Ducks either sit on clouds or fly around. Ducks occasionally jump between clouds
 
 ### Upgrades
 
-| Upgrade              | Type       | Base cost | Effect per purchase               | Max buys |
-|----------------------|------------|-----------|-----------------------------------|----------|
-| Cloud Crumb Cannon   | Per-duck   | 20        | +0.3 Quacks/s per duck            | 10       |
-| Cloud Incubator      | Hatchery   | 65        | Hatches one duck every 13 seconds | 10       |
-| V-Formation Training | Per-duck   | 200       | +0.45 Quacks/s per duck           | 10       |
-| Insect Swarm Net     | Flat       | 40        | +3 Quacks/s                       | 10       |
-| Stratosphere Gate    | Completion | 7,700     | Opens a route to Space            | 1        |
+| Upgrade              | Type       | Base cost | Effect per purchase                | Max buys |
+|----------------------|------------|-----------|------------------------------------|----------|
+| Cloud Crumb Cannon   | Per-duck   | 10        | +0.3 Quacks/s per duck             | 10       |
+| Cloud Incubator      | Hatchery   | 33        | Hatches one duck every 6.5 seconds | 10       |
+| V-Formation Training | Per-duck   | 100       | +0.45 Quacks/s per duck            | 10       |
+| Insect Swarm Net     | Flat       | 20        | +3 Quacks/s                        | 10       |
+| Stratosphere Gate    | Completion | 3,850     | Opens a route to Space             | 1        |
 
 Buying the Stratosphere Gate immediately starts the Space level. The ducks establish an aerial migration route.
 
@@ -109,13 +109,13 @@ Astronaut ducks hover around in space.
 
 ### Upgrades
 
-| Upgrade                 | Type       | Base cost | Effect per purchase               | Max buys |
-|-------------------------|------------|-----------|-----------------------------------|----------|
-| Starseed Feeder         | Per-duck   | 30        | +0.35 Quacks/s per duck           | 10       |
-| Zero-G Egg Pod          | Hatchery   | 90        | Hatches one duck every 12 seconds | 10       |
-| Orbital Duckweed Garden | Per-duck   | 280       | +0.5 Quacks/s per duck            | 10       |
-| Quasar Core             | Flat       | 60        | +4 Quacks/s                       | 10       |
-| Galactic Beacon         | Completion | 12,000    | Completes the campaign            | 1        |
+| Upgrade                 | Type       | Base cost | Effect per purchase              | Max buys |
+|-------------------------|------------|-----------|----------------------------------|----------|
+| Starseed Feeder         | Per-duck   | 15        | +0.35 Quacks/s per duck          | 10       |
+| Zero-G Egg Pod          | Hatchery   | 45        | Hatches one duck every 6 seconds | 10       |
+| Orbital Duckweed Garden | Per-duck   | 140       | +0.5 Quacks/s per duck           | 10       |
+| Quasar Core             | Flat       | 30        | +4 Quacks/s                      | 10       |
+| Galactic Beacon         | Completion | 6,000     | Completes the campaign           | 1        |
 
 Buying the Galactic Beacon ends the campaign and starts the outro.
 
@@ -124,9 +124,9 @@ Buying the Galactic Beacon ends the campaign and starts the outro.
 | Mechanic                | Pond       | Sky        | Space       |
 |-------------------------|------------|------------|-------------|
 | Growth upgrades         | 4          | 4          | 4           |
-| Target duration         | 3 min      | 4 min      | 5 min       |
-| Completion upgrade cost | 3,800      | 7,700      | 12,000      |
-| Hatch interval          | 14 s       | 13 s       | 12 s        |
+| Target duration         | 1.5 min    | 2 min      | 2.5 min     |
+| Completion upgrade cost | 1,900      | 3,850      | 6,000       |
+| Hatch interval          | 7 s        | 6.5 s      | 6 s         |
 | Per-duck production     | 0.25 / 0.4 | 0.3 / 0.45 | 0.35 / 0.5  |
 | Flat production per buy | +2/s       | +3/s       | +4/s        |
 | Main theme              | Feeding    | Flight     | Exploration |

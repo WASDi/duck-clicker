@@ -1,3 +1,4 @@
+import { hasUrlFlag } from '../core/url-flags';
 import { el } from '../view/playfield';
 
 export interface DebugActions {
@@ -10,7 +11,7 @@ export interface DebugActions {
 }
 
 export function isDebugMode(): boolean {
-  return new URLSearchParams(window.location.search).has('debug');
+  return hasUrlFlag('debug');
 }
 
 function button(parent: HTMLElement, label: string, onClick: () => void): HTMLButtonElement {

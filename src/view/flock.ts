@@ -3,6 +3,8 @@ import { DuckSprite, type DuckPose, type Point } from './duck';
 
 /** Individually animated ducks; beyond this, ducks are drawn small in rows farther back. */
 export const FRONT_DUCKS = 60;
+/** Lifts front ducks above every prop, nest and cloud, which are ordered by y within the 900 px world. */
+const FRONT_DEPTH_OFFSET = 1000;
 const MAX_DRAWN_DUCKS = 180;
 
 export interface Slot extends Point {
@@ -27,8 +29,6 @@ interface FlockDuck {
   state: unknown;
 }
 
-export type DuckClickHandler = (duck: DuckSprite, event: PointerEvent) => void;
-
 export class Flock {
   private readonly front: FlockDuck[] = [];
   private readonly back: DuckSprite[] = [];
@@ -36,7 +36,6 @@ export class Flock {
   constructor(
     private readonly layer: HTMLElement,
     private readonly behavior: DuckBehavior,
-    private readonly onClick: DuckClickHandler,
   ) {}
 
   get drawnCount(): number {
@@ -65,7 +64,8 @@ export class Flock {
   }
 
   private addFront(color: DuckColor, origin?: Point): void {
-    const sprite = new DuckSprite(this.layer, color, this.behavior.pose, this.onClick);
+    const sprite = new DuckSprite(this.layer, color, this.behavior.pose);
+    sprite.depthOffset = FRONT_DEPTH_OFFSET;
     this.behavior.decorate?.(sprite);
     const state = this.behavior.spawn(sprite, this.front.length, origin);
     if (origin) sprite.popIn();
@@ -73,7 +73,7 @@ export class Flock {
   }
 
   private addBack(color: DuckColor): void {
-    const sprite = new DuckSprite(this.layer, color, this.behavior.backPose ?? this.behavior.pose, this.onClick);
+    const sprite = new DuckSprite(this.layer, color, this.behavior.backPose ?? this.behavior.pose);
     sprite.el.classList.add('far');
     const slot = this.behavior.backSlot(this.back.length);
     sprite.face(Math.random() < 0.5);

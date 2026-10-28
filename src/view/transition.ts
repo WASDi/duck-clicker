@@ -1,7 +1,7 @@
 import { DUCK_COLORS } from '../core/assets';
 import type { LevelId } from '../sim/data';
 import { DuckSprite } from './duck';
-import { el, WORLD_HEIGHT } from './playfield';
+import { el, FOCUS_X, WORLD_HEIGHT } from './playfield';
 import type { LevelScene } from './scene';
 import { tween, wait } from './tween';
 
@@ -23,7 +23,7 @@ async function liftOff(scene: LevelScene): Promise<void> {
 
 /** Sky: the flock flies into the gate and through it. */
 async function throughGate(scene: LevelScene): Promise<void> {
-  const gate = { x: 800, y: 470 };
+  const gate = { x: FOCUS_X, y: 470 };
   const ducks = scene.flock.sprites.map((duck) => ({ duck, x: duck.x, y: duck.y, s: duck.scale, delay: Math.random() * 0.4 }));
   ducks.forEach(({ duck }) => {
     duck.setPose('fly');
@@ -43,10 +43,10 @@ function travellers(layer: HTMLElement): HTMLElement {
   const group = el('div', 'travellers', layer);
   for (let i = 0; i < TRAVELLERS; i++) {
     const color = i === 0 ? 'white' : DUCK_COLORS[Math.floor(Math.random() * DUCK_COLORS.length)];
-    const duck = new DuckSprite(group, color, 'fly', () => {});
+    const duck = new DuckSprite(group, color, 'fly');
     const side = i % 2 === 0 ? 1 : -1;
     const rank = Math.ceil(i / 2);
-    duck.moveTo(800 + side * rank * 90, rank * 70, 0.4);
+    duck.moveTo(FOCUS_X + side * rank * 90, rank * 70, 0.4);
   }
   return group;
 }

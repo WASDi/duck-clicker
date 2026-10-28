@@ -23,14 +23,15 @@ interface Card {
 
 /** The upgrade shop: four growth upgrades and the gold completion card. */
 export class Shop {
+  readonly root: HTMLElement;
   private readonly list: HTMLElement;
   private cards: Card[] = [];
   private levelId = '';
 
   constructor(parent: HTMLElement, private readonly handlers: ShopHandlers) {
-    const root = el('aside', 'shop panel', parent);
-    el('h2', 'shop-title', root).textContent = 'Upgrades';
-    this.list = el('div', 'shop-list', root);
+    this.root = el('aside', 'shop panel', parent);
+    el('h2', 'shop-title', this.root).textContent = 'Upgrades';
+    this.list = el('div', 'shop-list', this.root);
   }
 
   update(game: Game): void {

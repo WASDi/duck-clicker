@@ -33,6 +33,8 @@ export class Game {
   golden: Golden;
   hatchery!: Hatchery;
   private events: GameEvent[] = [];
+  /** Current price of each upgrade, updated on purchase. */
+  private costs: number[] = [];
 
   constructor(private readonly random: Random = Math.random) {
     this.golden = new Golden(random);
@@ -77,6 +79,7 @@ export class Game {
     this.quacks = 0;
     this.ducks = 1;
     this.purchases = this.level.upgrades.map(() => 0);
+    this.costs = this.level.upgrades.map((upgrade) => upgrade.baseCost);
     this.frenzy = new Frenzy();
     this.golden = new Golden(this.random);
     const hatcheryUpgrade = this.level.upgrades.find((u) => u.kind === 'hatchery')!;
@@ -98,11 +101,14 @@ export class Game {
     this.updateGolden(dt);
   }
 
-  /** Click on a duck. Returns the Quacks gained (0 when clicks are ignored). */
-  clickDuck(): number {
-    if (this.phase !== 'playing') return 0;
+  /**
+   * One click that hits `ducks` ducks at once. Every duck grants its own Quacks; the click counts
+   * once toward Honk Frenzy. Returns the Quacks gained per duck (0 when clicks are ignored).
+   */
+  clickDucks(ducks: number): number {
+    if (this.phase !== 'playing' || ducks <= 0) return 0;
     const gain = CLICK.baseQuacks + this.production * CLICK.productionShare;
-    this.quacks += gain;
+    this.quacks += gain * ducks;
     if (this.frenzy.registerClick()) this.events.push({ type: 'frenzyStart' });
     return gain;
   }
@@ -117,7 +123,7 @@ export class Game {
   }
 
   costOf(index: number): number {
-    return upgradeCost(this.level.upgrades[index], this.purchases[index]);
+    return this.costs[index];
   }
 
   isMaxed(index: number): boolean {
@@ -135,6 +141,7 @@ export class Game {
     if (this.quacks < cost) return 'tooExpensive';
     this.quacks -= cost;
     this.purchases[index] += 1;
+    this.costs[index] = upgradeCost(this.level.upgrades[index], this.purchases[index]);
     this.events.push({ type: 'purchased', index, count: this.purchases[index] });
     if (index === COMPLETION_INDEX) this.completeLevel();
     return 'bought';

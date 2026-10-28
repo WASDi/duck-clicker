@@ -1,7 +1,7 @@
 import { COMPLETION_INDEX, LEVELS } from '../sim/data';
 import type { Game } from '../sim/game';
-import type { Point } from './duck';
-import { Flock, type DuckClickHandler } from './flock';
+import { duckForHitArea, type DuckSprite, type Point } from './duck';
+import { Flock } from './flock';
 import { LEVEL_LOOKS, type PropPlacement } from './levels';
 import { Nest, placeSprite } from './nest';
 import { el, replayClass } from './playfield';
@@ -15,7 +15,7 @@ export class LevelScene {
   readonly nest: Nest;
   private readonly props: HTMLElement[] = [];
 
-  constructor(readonly levelIndex: number, onDuckClick: DuckClickHandler) {
+  constructor(readonly levelIndex: number) {
     const level = LEVELS[levelIndex];
     const look = LEVEL_LOOKS[level.id];
     this.root = el('div', `scene scene-${level.id}`);
@@ -27,7 +27,7 @@ export class LevelScene {
     const nestPlacement = look.props[HATCHERY_INDEX];
     this.nest = new Nest(this.root, look.egg, nestPlacement.sprite, nestPlacement, nestPlacement.size);
     this.props[HATCHERY_INDEX] = this.nest.el;
-    this.flock = new Flock(this.root, look.behavior(this.root), onDuckClick);
+    this.flock = new Flock(this.root, look.behavior(this.root));
   }
 
   get completionProp(): HTMLElement {
@@ -41,6 +41,14 @@ export class LevelScene {
     });
     this.nest.setEggCount(game.hatcheryPurchases);
     this.flock.fill(game.ducks);
+  }
+
+  /** Every duck whose hit box contains the given screen point. */
+  ducksAt(clientX: number, clientY: number): DuckSprite[] {
+    return document
+      .elementsFromPoint(clientX, clientY)
+      .filter((element) => this.root.contains(element))
+      .flatMap((element) => duckForHitArea(element) ?? []);
   }
 
   applyPurchase(index: number, count: number): void {

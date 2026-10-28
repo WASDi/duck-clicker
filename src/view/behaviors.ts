@@ -1,6 +1,6 @@
 import type { DuckSprite, Point } from './duck';
 import type { DuckBehavior, Slot } from './flock';
-import { el } from './playfield';
+import { el, FOCUS_X } from './playfield';
 
 function random(min: number, max: number): number {
   return min + Math.random() * (max - min);
@@ -45,19 +45,22 @@ interface SwimState {
   wait: number;
 }
 
-const POND_AREA = { left: 440, right: 1160, top: 420, bottom: 800 };
+const POND_AREA = { left: 400, right: 980, top: 420, bottom: 800 };
 
-/** Ducks swim on the water, sunk partway behind an animated water strip. */
+/**
+ * Ducks swim on the water: the body is cut off at the waterline and a ripple ring goes around
+ * it, its back half behind the duck and its front half in front.
+ */
 export class PondBehavior implements DuckBehavior<SwimState> {
   readonly pose = 'sit' as const;
 
   decorate(duck: DuckSprite): void {
-    duck.el.prepend(el('div', 'duck-ripple'));
-    el('div', 'duck-water', duck.el);
+    duck.body.before(el('div', 'duck-ripple back'));
+    duck.body.after(el('div', 'duck-ripple front'));
   }
 
   spawn(duck: DuckSprite, index: number, origin?: Point): SwimState {
-    const start = origin ?? (index === 0 ? { x: 800, y: 620 } : this.randomSpot());
+    const start = origin ?? (index === 0 ? { x: FOCUS_X, y: 620 } : this.randomSpot());
     duck.face(Math.random() < 0.5 && index > 0);
     duck.moveTo(start.x, start.y, this.scaleAt(start.y));
     return { target: origin ? this.randomSpot() : null, wait: random(2, 8) };
@@ -76,7 +79,7 @@ export class PondBehavior implements DuckBehavior<SwimState> {
   }
 
   backSlot(index: number): Slot {
-    return backRows(index, [360, 335, 310, 290], 470, 1130, 30, 0.2);
+    return backRows(index, [360, 335, 310, 290], 400, 980, 26, 0.2);
   }
 
   private scaleAt(y: number): number {
@@ -113,7 +116,7 @@ type SkyState =
 const SIT_SCALE = 0.42;
 const FLY_SCALE = 0.38;
 const HOP_SECONDS = 0.8;
-const FLY_AREA = { left: 320, right: 1280, top: 170, bottom: 760 };
+const FLY_AREA = { left: 280, right: 1100, top: 170, bottom: 760 };
 const SEAT_OFFSETS = [-0.24, 0, 0.24];
 
 /** Ducks sit on clouds, hop between neighbouring clouds, or fly in loops between them. */
@@ -124,7 +127,7 @@ export class SkyBehavior implements DuckBehavior<SkyState> {
 
   constructor(layer: HTMLElement) {
     const layout: [number, number, number][] = [
-      [800, 560, 400], [520, 380, 320], [1090, 370, 320], [540, 760, 340], [1060, 770, 360], [1290, 580, 260],
+      [680, 560, 400], [440, 380, 300], [930, 380, 300], [470, 770, 320], [900, 760, 340], [1130, 560, 240],
     ];
     this.clouds = layout.map(([x, y, width]) => ({ x, y, width, seats: SEAT_OFFSETS.map(() => null) }));
     this.clouds.forEach((cloud) => this.drawCloud(layer, cloud));
@@ -159,7 +162,7 @@ export class SkyBehavior implements DuckBehavior<SkyState> {
   }
 
   backSlot(index: number): Slot {
-    return backRows(index, [150, 120, 95, 75], 420, 1180, 30, 0.17);
+    return backRows(index, [150, 120, 95, 75], 380, 1000, 26, 0.17);
   }
 
   private updateSitting(duck: DuckSprite, state: Extract<SkyState, { mode: 'sit' }>, dt: number): void {
@@ -244,7 +247,7 @@ interface FloatState {
   wait: number;
 }
 
-const SPACE_AREA = { left: 420, right: 1180, top: 300, bottom: 780 };
+const SPACE_AREA = { left: 400, right: 960, top: 300, bottom: 780 };
 const ASTRO_SCALE = 0.42;
 
 /** Astronaut ducks hover with a slow, slightly rotating bob and drift to new spots. */
@@ -252,7 +255,7 @@ export class SpaceBehavior implements DuckBehavior<FloatState> {
   readonly pose = 'astro' as const;
 
   spawn(duck: DuckSprite, index: number, origin?: Point): FloatState {
-    const start = origin ?? (index === 0 ? { x: 800, y: 560 } : this.randomSpot());
+    const start = origin ?? (index === 0 ? { x: FOCUS_X, y: 560 } : this.randomSpot());
     duck.face(Math.random() < 0.5 && index > 0);
     duck.moveTo(start.x, start.y, ASTRO_SCALE);
     return { target: origin ? this.randomSpot() : null, wait: random(2, 8) };
@@ -270,7 +273,7 @@ export class SpaceBehavior implements DuckBehavior<FloatState> {
   }
 
   backSlot(index: number): Slot {
-    return backRows(index, [250, 220, 195, 175], 440, 1160, 30, 0.18);
+    return backRows(index, [250, 220, 195, 175], 400, 960, 26, 0.18);
   }
 
   private randomSpot(): Point {

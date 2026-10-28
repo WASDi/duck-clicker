@@ -26,7 +26,7 @@
 ## 3. No saving
 
 Nothing is saved: no `localStorage`, cookies, or other storage. All state lives in memory and is lost when the page
-reloads, which starts the game over. A full run is about 12 minutes, so this keeps the game simple.
+reloads, which starts the game over. A full run is about 6 minutes, so this keeps the game simple.
 
 ## 4. Debug
 

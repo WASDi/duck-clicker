@@ -1,3 +1,4 @@
+import { hasUrlFlag } from '../core/url-flags';
 import type { LevelId } from '../sim/data';
 import { AudioEngine } from './audio-engine';
 import { MUSIC_PATHS, Music } from './music';
@@ -23,6 +24,10 @@ export class GameAudio {
   private quackVoices = 0;
   private pendingLevel: LevelId | null = null;
 
+  constructor() {
+    if (hasUrlFlag('mute')) this.engine.mute();
+  }
+
   async load(): Promise<void> {
     await Promise.all([
       this.engine.load([...QUACKS, ...SFX_NAMES.map((n) => `${SFX}${n}.wav`)]),
@@ -45,13 +50,13 @@ export class GameAudio {
     if (this.engine.unlocked) this.music.playLevel(level, true);
   }
 
-  quack(): void {
+  quack(delay = 0): void {
     if (this.quackVoices >= MAX_QUACK_VOICES) return;
     let clip = Math.floor(Math.random() * (QUACKS.length - 1));
     if (clip >= this.lastQuack && this.lastQuack >= 0) clip += 1;
     this.lastQuack = clip;
     const rate = 1 + (Math.random() * 2 - 1) * QUACK_RATE_VARIATION;
-    const source = this.engine.play(QUACKS[clip], { rate, onEnded: () => this.quackVoices-- });
+    const source = this.engine.play(QUACKS[clip], { rate, delay, onEnded: () => this.quackVoices-- });
     if (source) this.quackVoices++;
   }
 

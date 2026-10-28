@@ -1,4 +1,6 @@
 // All gameplay numbers from docs/Gameplay.md live here.
+// Costs are halved and hatch speed doubled from the original design so each level takes about
+// half as long.
 
 export type LevelId = 'pond' | 'sky' | 'space';
 
@@ -62,33 +64,33 @@ export const LEVELS: readonly LevelDef[] = [
     id: 'pond',
     name: 'Pond',
     upgrades: [
-      growth('bread_conveyor', 'Bread Conveyor', 'perDuck', 10, 0.25, '+0.25 Quacks/s per duck'),
-      growth('reed_nursery', 'Reed Nursery', 'hatchery', 35, 14, 'Hatches one duck every 14 seconds'),
-      growth('duckweed_farm', 'Duckweed Farm', 'perDuck', 100, 0.4, '+0.4 Quacks/s per duck'),
-      growth('worm_shower', 'Worm Shower', 'flat', 25, 2, '+2 Quacks/s'),
-      completion('flight', 'Flight', 3800, 'Sends the flock flying up into the sky'),
+      growth('bread_conveyor', 'Bread Conveyor', 'perDuck', 5, 0.25, '+0.25 Quacks/s per duck'),
+      growth('reed_nursery', 'Reed Nursery', 'hatchery', 18, 7, 'Hatches one duck every 7 seconds'),
+      growth('duckweed_farm', 'Duckweed Farm', 'perDuck', 50, 0.4, '+0.4 Quacks/s per duck'),
+      growth('worm_shower', 'Worm Shower', 'flat', 13, 2, '+2 Quacks/s'),
+      completion('flight', 'Flight', 1900, 'Sends the flock flying up into the sky'),
     ],
   },
   {
     id: 'sky',
     name: 'Sky',
     upgrades: [
-      growth('crumb_cannon', 'Cloud Crumb Cannon', 'perDuck', 20, 0.3, '+0.3 Quacks/s per duck'),
-      growth('cloud_incubator', 'Cloud Incubator', 'hatchery', 65, 13, 'Hatches one duck every 13 seconds'),
-      growth('v_formation', 'V-Formation Training', 'perDuck', 200, 0.45, '+0.45 Quacks/s per duck'),
-      growth('insect_swarm_net', 'Insect Swarm Net', 'flat', 40, 3, '+3 Quacks/s'),
-      completion('stratosphere_gate', 'Stratosphere Gate', 7700, 'Opens a route to Space'),
+      growth('crumb_cannon', 'Cloud Crumb Cannon', 'perDuck', 10, 0.3, '+0.3 Quacks/s per duck'),
+      growth('cloud_incubator', 'Cloud Incubator', 'hatchery', 33, 6.5, 'Hatches one duck every 6.5 seconds'),
+      growth('v_formation', 'V-Formation Training', 'perDuck', 100, 0.45, '+0.45 Quacks/s per duck'),
+      growth('insect_swarm_net', 'Insect Swarm Net', 'flat', 20, 3, '+3 Quacks/s'),
+      completion('stratosphere_gate', 'Stratosphere Gate', 3850, 'Opens a route to Space'),
     ],
   },
   {
     id: 'space',
     name: 'Space',
     upgrades: [
-      growth('starseed_feeder', 'Starseed Feeder', 'perDuck', 30, 0.35, '+0.35 Quacks/s per duck'),
-      growth('zero_g_egg_pod', 'Zero-G Egg Pod', 'hatchery', 90, 12, 'Hatches one duck every 12 seconds'),
-      growth('orbital_duckweed_garden', 'Orbital Duckweed Garden', 'perDuck', 280, 0.5, '+0.5 Quacks/s per duck'),
-      growth('quasar_core', 'Quasar Core', 'flat', 60, 4, '+4 Quacks/s'),
-      completion('galactic_beacon', 'Galactic Beacon', 12000, 'Completes the campaign'),
+      growth('starseed_feeder', 'Starseed Feeder', 'perDuck', 15, 0.35, '+0.35 Quacks/s per duck'),
+      growth('zero_g_egg_pod', 'Zero-G Egg Pod', 'hatchery', 45, 6, 'Hatches one duck every 6 seconds'),
+      growth('orbital_duckweed_garden', 'Orbital Duckweed Garden', 'perDuck', 140, 0.5, '+0.5 Quacks/s per duck'),
+      growth('quasar_core', 'Quasar Core', 'flat', 30, 4, '+4 Quacks/s'),
+      completion('galactic_beacon', 'Galactic Beacon', 6000, 'Completes the campaign'),
     ],
   },
 ];

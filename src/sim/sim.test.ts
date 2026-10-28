@@ -24,9 +24,9 @@ function frenzyAfter(clicks: number, gapSeconds: number): Frenzy {
 describe('upgradeCost', () => {
   it('grows 35% per purchase, rounded each step', () => {
     const bread = LEVELS[0].upgrades[0];
-    expect(upgradeCost(bread, 0)).toBe(10);
-    expect(upgradeCost(bread, 1)).toBe(14);
-    expect(upgradeCost(bread, 2)).toBe(19);
+    expect(upgradeCost(bread, 0)).toBe(5);
+    expect(upgradeCost(bread, 1)).toBe(7);
+    expect(upgradeCost(bread, 2)).toBe(9);
   });
 });
 
@@ -38,11 +38,18 @@ describe('Game', () => {
     expect(game.quacks).toBe(0);
   });
 
+  it('grants Quacks for every duck hit by one click, counting one Frenzy click', () => {
+    const game = new Game(half);
+    expect(game.clickDucks(3)).toBe(1);
+    expect(game.quacks).toBe(3);
+    expect(game.frenzy.streak).toBe(1);
+  });
+
   it('grants 1 Quack plus 5% of production per click', () => {
     const game = new Game(half);
-    game.quacks = 25;
+    game.quacks = 13;
     game.buy(3); // Worm Shower: +2/s
-    expect(game.clickDuck()).toBeCloseTo(1.1);
+    expect(game.clickDucks(1)).toBeCloseTo(1.1);
   });
 
   it('adds per-duck and flat production', () => {
@@ -65,17 +72,17 @@ describe('Game', () => {
 
   it('completes the level when the completion upgrade is bought', () => {
     const game = new Game(half);
-    game.quacks = 3800;
+    game.quacks = 1900;
     game.buy(COMPLETION_INDEX);
     expect(game.phase).toBe('transition');
     expect(game.drainEvents()).toContainEqual({ type: 'levelComplete', levelIndex: 0 });
-    expect(game.clickDuck()).toBe(0);
+    expect(game.clickDucks(1)).toBe(0);
   });
 
   it('enters the outro after the last level', () => {
     const game = new Game(half);
     game.startLevel(2);
-    game.quacks = 12000;
+    game.quacks = 6000;
     game.buy(COMPLETION_INDEX);
     expect(game.phase).toBe('outro');
   });
@@ -93,7 +100,7 @@ describe('Game', () => {
 
   it('doubles production and the Golden reward during Frenzy', () => {
     const game = new Game(half);
-    game.quacks = 25;
+    game.quacks = 13;
     game.buy(3);
     game.forceFrenzy();
     expect(game.production).toBe(4);
@@ -102,28 +109,28 @@ describe('Game', () => {
 
   it('hatches ducks from the hatchery', () => {
     const game = new Game(half);
-    game.quacks = 35 + 47;
+    game.quacks = 18 + 24;
     game.buy(1);
     game.buy(1);
-    run(game, 14);
+    run(game, 7 + TICK_SECONDS); // one extra tick absorbs float rounding
     expect(game.ducks).toBe(3);
     expect(game.drainEvents()).toContainEqual({ type: 'hatched', count: 2 });
   });
 
-  it('a 1-click-per-second greedy player finishes each level in a few minutes', () => {
+  it('a 1-click-per-second greedy player finishes each level in one to three minutes', () => {
     for (let level = 0; level < LEVELS.length; level++) {
       const game = new Game(half);
       game.startLevel(level);
       let seconds = 0;
       while (game.phase === 'playing' && seconds < 900) {
-        game.clickDuck();
+        game.clickDucks(1);
         buyCheapest(game);
         run(game, 1);
         seconds++;
       }
       expect(game.phase).not.toBe('playing');
-      expect(seconds).toBeGreaterThan(90);
-      expect(seconds).toBeLessThan(420);
+      expect(seconds).toBeGreaterThan(60);
+      expect(seconds).toBeLessThan(200);
     }
   });
 });

@@ -53,18 +53,18 @@ function twinkles(layer: HTMLElement, count: number): void {
 export const LEVEL_LOOKS: Record<LevelId, LevelLook> = {
   pond: {
     props: [
-      { sprite: '--img-pond-bread-conveyor', x: 600, y: 285, size: 200 },
-      { sprite: '--img-pond-reed-nursery', x: 320, y: 570, size: 220 },
-      { sprite: '--img-pond-duckweed-farm', x: 1280, y: 580, size: 210 },
-      { sprite: '--img-pond-worm-shower', x: 1020, y: 275, size: 190 },
-      { sprite: '--img-pond-flight', x: 330, y: 895, size: 300 },
+      { sprite: '--img-pond-bread-conveyor', x: 470, y: 285, size: 200 },
+      { sprite: '--img-pond-reed-nursery', x: 270, y: 560, size: 220 },
+      { sprite: '--img-pond-duckweed-farm', x: 1100, y: 470, size: 200 },
+      { sprite: '--img-pond-worm-shower', x: 880, y: 275, size: 190 },
+      { sprite: '--img-pond-flight', x: 1080, y: 895, size: 300 },
     ],
     egg: 'reed',
     goldenSprite: '--img-pond-bread',
     behavior: () => new PondBehavior(),
     scenery: (layer) => {
-      sprite(layer, '--img-pond-lily-pad', 500, 880, 120, 'flat');
-      sprite(layer, '--img-pond-lily-pad', 1180, 860, 110, 'flat');
+      sprite(layer, '--img-pond-lily-pad', 330, 870, 120, 'flat');
+      sprite(layer, '--img-pond-lily-pad', 1180, 650, 110, 'flat');
       sprite(layer, '--img-pond-lily-pad', 1420, 720, 130, 'flat');
       sprite(layer, '--img-pond-reed-clump', 130, 470, 230);
       sprite(layer, '--img-pond-reed-clump', 1490, 450, 230, 'flipped');
@@ -72,11 +72,11 @@ export const LEVEL_LOOKS: Record<LevelId, LevelLook> = {
   },
   sky: {
     props: [
-      { sprite: '--img-sky-crumb-cannon', x: 300, y: 790, size: 190, onCloud: true },
-      { sprite: '--img-sky-cloud-incubator', x: 290, y: 480, size: 220 },
-      { sprite: '--img-sky-v-formation', x: 1300, y: 300, size: 170 },
-      { sprite: '--img-sky-insect-swarm-net', x: 1310, y: 800, size: 190, onCloud: true },
-      { sprite: '--img-sky-stratosphere-gate', x: 800, y: 700, size: 520, z: 5 },
+      { sprite: '--img-sky-crumb-cannon', x: 260, y: 790, size: 190, onCloud: true },
+      { sprite: '--img-sky-cloud-incubator', x: 260, y: 480, size: 220 },
+      { sprite: '--img-sky-v-formation', x: 1110, y: 230, size: 160 },
+      { sprite: '--img-sky-insect-swarm-net', x: 1110, y: 800, size: 190, onCloud: true },
+      { sprite: '--img-sky-stratosphere-gate', x: 680, y: 700, size: 520, z: 5 },
     ],
     egg: 'cloud',
     goldenSprite: '--img-sky-small-cloud',
@@ -91,11 +91,11 @@ export const LEVEL_LOOKS: Record<LevelId, LevelLook> = {
   },
   space: {
     props: [
-      { sprite: '--img-space-starseed-feeder', x: 330, y: 390, size: 190 },
-      { sprite: '--img-space-zero-g-egg-pod', x: 320, y: 790, size: 220 },
-      { sprite: '--img-space-orbital-duckweed-garden', x: 1280, y: 390, size: 200 },
-      { sprite: '--img-space-quasar-core', x: 1280, y: 780, size: 190 },
-      { sprite: '--img-space-galactic-beacon', x: 800, y: 640, size: 440, z: 5 },
+      { sprite: '--img-space-starseed-feeder', x: 270, y: 390, size: 190 },
+      { sprite: '--img-space-zero-g-egg-pod', x: 270, y: 790, size: 220 },
+      { sprite: '--img-space-orbital-duckweed-garden', x: 1090, y: 390, size: 200 },
+      { sprite: '--img-space-quasar-core', x: 1090, y: 780, size: 190 },
+      { sprite: '--img-space-galactic-beacon', x: 680, y: 640, size: 440, z: 5 },
     ],
     egg: 'pod',
     goldenSprite: '--img-space-star',

@@ -7,10 +7,23 @@ import { el, Playfield, replayClass, WORLD_HEIGHT } from './playfield';
 const SCENE = { flight: 6, landfall: 20, colony: 32, pullBack: 46, message: 58, end: 68 } as const;
 
 const MAX_FRAME_SECONDS = 0.1;
-const DISH: Point = { x: 800, y: 430 };
-const BEAM_ANGLE = -29;
+const BEACON_SIZE = 480;
+const BEACON_BOTTOM: Point = { x: 800, y: 900 };
+/** The antenna tip on the dish in galactic_beacon_lit.png (512 px), where the beam starts. */
+const ANTENNA_TIP_IN_SPRITE: Point = { x: 352, y: 31 };
+const DISH: Point = {
+  x: BEACON_BOTTOM.x - BEACON_SIZE / 2 + (ANTENNA_TIP_IN_SPRITE.x * BEACON_SIZE) / 512,
+  y: BEACON_BOTTOM.y - BEACON_SIZE + (ANTENNA_TIP_IN_SPRITE.y * BEACON_SIZE) / 512,
+};
+/** Along the dish's axis, from the dish center through the antenna tip. */
+const BEAM_ANGLE = -48;
 const BEAM_DIR: Point = { x: Math.cos((BEAM_ANGLE * Math.PI) / 180), y: Math.sin((BEAM_ANGLE * Math.PI) / 180) };
 const CAMERA_SPEED = 200;
+const BEAM_LENGTH = 2400;
+/** World speed of the beam's tail after it leaves the dish; minus the camera it clears the screen by about 9 s. */
+const BEAM_TAIL_SPEED = 380;
+/** Distance from the dish at which the beam's tail is off screen. */
+const BEAM_GONE_DISTANCE = 900;
 const LEADER_DISTANCE = 140;
 const FLOCK_SIZE = 9;
 /** Offsets and parallax depths of the three star-dot layers in outro.css. */
@@ -26,7 +39,8 @@ const POND_SPOTS: readonly Point[] = [
   { x: 720, y: 600 }, { x: 640, y: 615 }, { x: 900, y: 600 }, { x: 600, y: 650 }, { x: 960, y: 640 },
   { x: 700, y: 665 }, { x: 860, y: 670 }, { x: 790, y: 690 }, { x: 800, y: 620 },
 ];
-const EGG_SPOTS: readonly Point[] = [{ x: 470, y: 690 }, { x: 560, y: 720 }, { x: 1040, y: 720 }, { x: 1130, y: 690 }, { x: 800, y: 760 }];
+/** On the moon's front rim, below the pond and clear of the middle dome. */
+const EGG_SPOTS: readonly Point[] = [{ x: 485, y: 790 }, { x: 570, y: 812 }, { x: 830, y: 815 }, { x: 935, y: 812 }, { x: 1050, y: 790 }];
 const DOME_SPOTS: readonly Point[] = [{ x: 380, y: 760 }, { x: 1220, y: 760 }, { x: 680, y: 800 }];
 const FLIGHT_PROPS: readonly { sprite: string; distance: number; side: number }[] = [
   { sprite: '--img-space-quasar-core', distance: 900, side: -260 },
@@ -114,7 +128,7 @@ export class Outro {
 
     this.beam = el('div', 'outro-beam', this.shaker);
     this.beacon = sprite(this.shaker, '--img-space-galactic-beacon', 'outro-beacon');
-    placeSprite(this.beacon, DISH.x, 900, 480, 480);
+    placeSprite(this.beacon, BEACON_BOTTOM.x, BEACON_BOTTOM.y, BEACON_SIZE, BEACON_SIZE);
     this.flightProps = FLIGHT_PROPS.map((p) => sprite(this.shaker, p.sprite, 'outro-flight-prop'));
     this.moon = sprite(this.shaker, '--img-outro-moon', 'outro-moon');
     placeSprite(this.moon, MOON_LEFT + MOON_SIZE / 2, MOON_TOP + MOON_SIZE, MOON_SIZE, MOON_SIZE);
@@ -137,10 +151,10 @@ export class Outro {
     const flockLayer = el('div', 'outro-flock', this.shaker);
     this.flock = Array.from({ length: FLOCK_SIZE }, (_, i) => {
       const color = i === 0 ? 'white' : DUCK_COLORS[i % DUCK_COLORS.length];
-      return new DuckSprite(flockLayer, color, 'astro', () => {});
+      return new DuckSprite(flockLayer, color, 'astro');
     });
     this.ducklings = EGG_SPOTS.map((_, i) => {
-      const duckling = new DuckSprite(flockLayer, DUCK_COLORS[(i + 1) % DUCK_COLORS.length], 'astro', () => {});
+      const duckling = new DuckSprite(flockLayer, DUCK_COLORS[(i + 1) % DUCK_COLORS.length], 'astro');
       duckling.el.classList.add('hidden');
       return duckling;
     });
@@ -211,6 +225,7 @@ export class Outro {
     }
     this.renderIgnition(t);
     const camera = Math.max(0, Math.min(t, SCENE.landfall) - SCENE.flight) * CAMERA_SPEED;
+    this.renderBeam(t, camera);
     this.renderFlight(t, camera);
     this.renderMoon(t);
     this.flock.forEach((duck, i) => this.renderFlockDuck(duck, i, t, camera));
@@ -220,10 +235,6 @@ export class Outro {
   }
 
   private renderIgnition(t: number): void {
-    const beamLength = phase(t, 0.5, 2) * 4800;
-    this.beam.style.width = `${beamLength}px`;
-    this.beam.style.transform = `translate(${DISH.x}px, ${DISH.y}px) rotate(${BEAM_ANGLE}deg)`;
-    this.beam.classList.toggle('hidden', t >= SCENE.landfall + 0.5);
     let shake: Point = { x: 0, y: 0 };
     if (t < SCENE.flight && t > 0.5) {
       const step = Math.floor(t / 0.08);
@@ -231,6 +242,18 @@ export class Outro {
       shake = { x: (((step * 7919) % 13) / 6 - 1) * amplitude, y: (((step * 104729) % 11) / 5 - 1) * amplitude };
     }
     setPosition(this.shaker, shake);
+  }
+
+  /**
+   * The beam grows out of the dish during ignition. When the flight starts, its tail leaves the
+   * dish and races ahead of the flock, so the beam is gone a few seconds into scene 2.
+   */
+  private renderBeam(t: number, camera: number): void {
+    const tail = Math.max(0, t - SCENE.flight) * BEAM_TAIL_SPEED - camera;
+    const start = { x: DISH.x + BEAM_DIR.x * tail, y: DISH.y + BEAM_DIR.y * tail };
+    this.beam.style.width = `${phase(t, 0.5, 2) * BEAM_LENGTH}px`;
+    this.beam.style.transform = `translate(${start.x}px, ${start.y}px) rotate(${BEAM_ANGLE}deg)`;
+    this.beam.classList.toggle('hidden', tail > BEAM_GONE_DISTANCE);
   }
 
   /** Scene 2: the camera travels along the beam, so the beam stays put while props pass. */

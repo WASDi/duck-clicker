@@ -197,7 +197,6 @@
 .duck-hit {
   position: absolute;
   inset: 14% 12% 2% 12%;
-  border-radius: 45%;
   pointer-events: auto;
   cursor: pointer;
 }
@@ -246,41 +245,48 @@
   50% { transform: translateY(-18px); }
 }
 
-/* Pond: each duck sits low behind a strip of water with a scrolling wave edge. */
-.duck-water {
+/*
+ * Pond: the duck fades out below the waterline (56 px above the bottom), with a ripple ring
+ * around it. The body reaches 160 px above the duck so hops and bounces are not masked away.
+ */
+.duck-body {
   position: absolute;
-  left: 2%;
-  right: 2%;
-  bottom: -4%;
-  height: 27%;
-  border-radius: 0 0 50% 50% / 0 0 40% 40%;
-  background:
-    linear-gradient(transparent 0 12px, rgb(160 232 255 / 0.8) 12px 15px, transparent 15px),
-    radial-gradient(circle at 50% 0, transparent 0 13px, rgb(53 193 250 / 0.9) 14px) 0 0 / 28px 100% repeat-x;
-  animation: wave 1.4s linear infinite;
+  inset: -160px 0 0;
 }
 
-@keyframes wave {
-  from { background-position: 0 0, 0 0; }
-  to { background-position: 0 0, 28px 0; }
+.duck-body > .duck-bob {
+  inset: auto 0 0;
+  height: 256px;
 }
 
+.scene-pond .duck[data-pose='sit']:not(.far) .duck-body {
+  mask-image: linear-gradient(to top, transparent 40px, #000 72px);
+}
+
+/* The ring fills the bottom 97 px of ripple.png; it is squashed a little and centered on the waterline (y 200). */
 .duck-ripple {
   position: absolute;
-  left: -12%;
-  right: -12%;
-  bottom: -18%;
-  height: 40%;
-  background: var(--img-pond-ripple) center / contain no-repeat;
+  left: 13px;
+  top: 165px;
+  width: 230px;
+  height: 70px;
+  background: var(--img-pond-ripple) center bottom / 230px 185px no-repeat;
   animation: ripple 2.4s steps(3) infinite;
 }
 
+.duck-ripple.back {
+  clip-path: inset(0 0 50% 0);
+}
+
+.duck-ripple.front {
+  clip-path: inset(50% 0 0 0);
+}
+
 @keyframes ripple {
-  0% { transform: scale(0.75); }
+  0% { transform: scale(0.85); }
   100% { transform: scale(1.15); }
 }
 
-.duck[data-pose='fly'] .duck-water,
 .duck[data-pose='fly'] .duck-ripple {
   display: none;
 }

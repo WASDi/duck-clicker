@@ -93,8 +93,14 @@
   position: absolute;
 }
 
+/* Glowing eggs keep their own colors and blink brighter with hard frames. */
 .egg.glowing {
-  filter: sepia(1) saturate(3) hue-rotate(140deg) brightness(1.35);
+  animation: egg-glow 0.8s steps(1) infinite;
+}
+
+@keyframes egg-glow {
+  0% { filter: brightness(1.15); }
+  50% { filter: brightness(1.45); }
 }
 
 .duck.waddle .duck-hop {

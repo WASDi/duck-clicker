@@ -25,6 +25,12 @@ export class AudioEngine {
     });
   }
 
+  /** Silences everything while the sounds keep playing, e.g. for testing with `?mute`. */
+  mute(): void {
+    this.sfxBus.gain.value = 0;
+    this.musicBus.gain.value = 0;
+  }
+
   get running(): boolean {
     return this.unlocked && this.context.state === 'running';
   }

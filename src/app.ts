@@ -6,14 +6,16 @@ import { createDebugPanel, isDebugMode } from './ui/debug';
 import { formatGain } from './ui/format';
 import { FrenzyMeter, StatsBar } from './ui/hud';
 import { Shop } from './ui/shop';
-import type { DuckSprite, Point } from './view/duck';
+import type { Point } from './view/duck';
 import { floatNumber, sparkle } from './view/effects';
 import { GoldenItem } from './view/golden-item';
 import { LEVEL_LOOKS } from './view/levels';
 import { Outro } from './view/outro';
-import { el, Playfield, replayClass } from './view/playfield';
+import { el, FOCUS_X, Playfield, replayClass } from './view/playfield';
 import { LevelScene } from './view/scene';
 import { playLevelTransition } from './view/transition';
+
+const QUACK_STAGGER_SECONDS = 0.05;
 
 /** Wires the game rules to the scene, HUD, shop and audio. */
 export class App {
@@ -35,7 +37,7 @@ export class App {
     this.root = el('div', 'game', parent);
     this.stats = new StatsBar(this.root);
     this.stage = el('main', 'stage', this.root);
-    this.playfield = new Playfield(this.stage);
+    this.playfield = new Playfield(this.stage, FOCUS_X);
     el('div', 'frenzy-border', this.stage);
     this.honk = el('div', 'honk-burst hidden', this.stage);
     this.frenzyMeter = new FrenzyMeter(this.stage);
@@ -43,8 +45,10 @@ export class App {
       onBuy: (index) => this.buy(index),
       onToggleDetails: () => this.audio.sfx('ui_click'),
     });
+    this.playfield.setOccluder(this.shop.root);
     this.golden = new GoldenItem(this.playfield.fxLayer, (at) => this.collectGolden(at));
     this.scene = this.showLevel(0);
+    this.playfield.root.addEventListener('pointerdown', (event) => this.clickDucks(event));
 
     document.addEventListener('pointerdown', () => this.audio.unlock(this.game.level.id), { capture: true });
     if (isDebugMode()) this.createDebug();
@@ -56,12 +60,13 @@ export class App {
   }
 
   start(): void {
+    this.render(0);
     this.loop.start();
   }
 
   private showLevel(index: number): LevelScene {
     this.scene?.root.remove();
-    const scene = new LevelScene(index, (duck, event) => this.clickDuck(duck, event));
+    const scene = new LevelScene(index);
     this.playfield.sceneLayer.append(scene.root);
     scene.restore(this.game);
     this.golden.setSprite(LEVEL_LOOKS[LEVELS[index].id].goldenSprite);
@@ -79,14 +84,16 @@ export class App {
     this.shop.update(this.game);
   }
 
-  private clickDuck(duck: DuckSprite, event: PointerEvent): void {
-    event.stopPropagation();
-    this.audio.unlock(this.game.level.id);
-    const gain = this.game.clickDuck();
+  /** One click hits every duck under the pointer, and each of them quacks. */
+  private clickDucks(event: PointerEvent): void {
+    const ducks = this.scene.ducksAt(event.clientX, event.clientY);
+    const gain = this.game.clickDucks(ducks.length);
     if (gain === 0) return;
-    duck.hop();
-    this.audio.quack();
-    floatNumber(this.playfield.fxLayer, duck.x, duck.y - 230 * duck.scale, `+${formatGain(gain)}`);
+    ducks.forEach((duck, i) => {
+      duck.hop();
+      this.audio.quack(i * QUACK_STAGGER_SECONDS);
+      floatNumber(this.playfield.fxLayer, duck.x, duck.y - 230 * duck.scale, `+${formatGain(gain)}`);
+    });
     this.handleEvents(this.game.drainEvents());
   }
 
@@ -156,7 +163,7 @@ export class App {
     this.game.startLevel(next);
     this.game.phase = 'transition';
     this.audio.startLevelMusic(this.game.level.id);
-    const newScene = new LevelScene(next, (duck, e) => this.clickDuck(duck, e));
+    const newScene = new LevelScene(next);
     newScene.restore(this.game);
     this.golden.setSprite(LEVEL_LOOKS[LEVELS[next].id].goldenSprite);
     await playLevelTransition(from, oldScene, newScene, this.playfield.sceneLayer, this.playfield.fxLayer);
