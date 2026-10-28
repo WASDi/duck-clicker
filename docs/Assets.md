@@ -178,6 +178,8 @@ Output: `assets/icons/<name>.png`, 128 × 128, anchor center.
 
 Output: `assets/hud/<name>.png` at the sliced size (no resize). The 9-slice and 3-slice insets are measured after
 slicing and stored in CSS.
+`button_down` and `button_off` are lined up with `button` and cropped with the same box, so the three states
+swap in place.
 
 ### G14 — Outro
 
