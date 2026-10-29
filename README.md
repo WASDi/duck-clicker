@@ -1,3 +1,5 @@
+![Duck Clicker](docs/banner.jpg)
+
 # Duck Clicker
 
-TODO
+Click the ducks.
