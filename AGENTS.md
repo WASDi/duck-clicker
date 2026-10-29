@@ -23,7 +23,8 @@ Click ducks → earn Quacks → buy upgrades → hatch ducks → finish each lev
 - `src/styles/`: CSS.
 - `public/assets/`: committed sprites, audio, and font.
 - `tools/`: Python asset-generation scripts, run by hand. Their outputs are committed.
-- `docs/`: design specs (Gameplay, Graphics, Audio, Assets, Tech). Read these before changing behavior.
+- `docs/`: design specs (Gameplay, Graphics, Audio, Assets, Tech, Trailer). Read these before changing behavior.
+- `trailer/`: the YouTube trailer, a separate Remotion project with its own `package.json` (see `docs/Trailer.md`).
 
 ## Conventions
 - Keep sim logic DOM-free so it stays testable.

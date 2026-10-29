@@ -1,0 +1,33 @@
+{
+  "fps": 30,
+  "width": 1280,
+  "height": 720,
+  "bpm": 120,
+  "scenes": [
+    ["coldOpen", 2],
+    ["pond", 3],
+    ["sky", 2],
+    ["space", 3],
+    ["pause", 1],
+    ["drop", 2],
+    ["title", 2]
+  ],
+  "cues": {
+    "drip": 4,
+    "wobble": [10, 14, 15, 15.5],
+    "crack": 12,
+    "reveal": 16,
+    "ostinato": 20,
+    "flyby": 23,
+    "gate": 31,
+    "beacon": 32,
+    "silence": 40,
+    "quack": 42,
+    "drop": 44,
+    "dropHatch": [44, 48],
+    "dropQuack": [45, 49.5],
+    "flag": 51,
+    "titleHit": 52,
+    "lastQuack": 57
+  }
+}
